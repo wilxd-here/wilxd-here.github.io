@@ -1,1 +1,48 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Apple Live Photo Clone</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://unpkg.com/webm-muxer/build/webm-muxer.js"></script>
+</head>
+<body>
+    <div id="app-container">
+        <!-- Source Stream -->
+        <video id="hidden-camera" autoplay playsinline muted></video>
+        
+        <!-- Live Viewfinder -->
+        <canvas id="viewfinder"></canvas>
+        
+        <!-- Flash Overlay -->
+        <div id="flash-overlay"></div>
+        
+        <!-- UI Elements -->
+        <div id="ui-layer">
+            <div id="status-badge">LIVE</div>
+            
+            <div class="bottom-bar">
+                <button id="btn-shutter">
+                    <div class="shutter-inner"></div>
+                </button>
+            </div>
 
+            <!-- Branding -->
+            <div id="wilxd-footer">Powered by Wilxd.All Right Reversed</div>
+        </div>
+
+        <!-- Result / Playback View -->
+        <div id="result-view" class="hidden">
+            <div class="header">
+                <button id="btn-back">Tutup</button>
+                <div class="hint">Tekan & Tahan untuk melihat</div>
+            </div>
+            <canvas id="playback-canvas"></canvas>
+            <button id="btn-download">Download Live Photo</button>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
