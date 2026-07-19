@@ -1,1 +1,365 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brat Generator</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
 
+        * { box-sizing: border-box; }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            background-color: #02000a; /* Angkasa luar pekat */
+            color: #ffffff;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* --- BACKGROUND UNIVERSE & AURORA --- */
+        .space-background {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -3;
+            background: radial-gradient(circle at 50% 50%, #0d041e 0%, #02000a 100%);
+        }
+
+        .aurora-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -2;
+            overflow: hidden;
+            filter: blur(100px);
+            opacity: 0.5;
+        }
+
+        .aurora-blob {
+            position: absolute;
+            border-radius: 50%;
+            animation: moveAurora 25s infinite alternate ease-in-out;
+        }
+
+        .aurora-1 {
+            top: -10%; left: -10%; width: 50vw; height: 50vw;
+            background: rgba(45, 212, 191, 0.5); /* Cyan */
+        }
+
+        .aurora-2 {
+            bottom: -10%; right: -10%; width: 60vw; height: 60vw;
+            background: rgba(168, 85, 247, 0.4); /* Purple */
+            animation-delay: -7s;
+        }
+
+        @keyframes moveAurora {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(8vw, 8vh) scale(1.1); }
+            100% { transform: translate(-4vw, 12vh) scale(0.9); }
+        }
+
+        /* Canvas Bintang */
+        #stars {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+        }
+
+        /* --- UI CARD GLASSMORPHISM --- */
+        .container {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            max-width: 460px;
+            padding: 20px;
+        }
+
+        .card {
+            background: rgba(8, 8, 16, 0.5);
+            backdrop-filter: blur(30px);
+            -webkit-backdrop-filter: blur(30px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 30px;
+            border-radius: 24px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.8), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+        }
+
+        .header { text-align: center; }
+        .header h1 {
+            font-size: 2rem; font-weight: 800; margin: 0 0 5px 0;
+            letter-spacing: -1px;
+            background: linear-gradient(to right, #ffffff, #c084fc, #2dd4bf);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p { color: #64748b; font-size: 0.9rem; margin: 0; }
+
+        .input-group label {
+            font-size: 0.75rem; font-weight: 600; color: #94a3b8;
+            text-transform: uppercase; letter-spacing: 2px;
+            margin-bottom: 8px; display: block;
+        }
+        .input-box {
+            width: 100%; padding: 16px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            color: #fff; font-size: 16px; outline: none;
+            transition: all 0.3s;
+        }
+        .input-box:focus {
+            border-color: #a855f7;
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.25);
+        }
+
+        .canvas-container {
+            width: 100%; aspect-ratio: 1/1;
+            border-radius: 14px; overflow: hidden;
+            background: #fff;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+        }
+        canvas#canvas { width: 100%; height: 100%; display: block; }
+
+        .btn {
+            width: 100%; padding: 16px;
+            background: linear-gradient(135deg, #a855f7, #2dd4bf);
+            color: #fff; border: none; border-radius: 14px;
+            font-size: 1rem; font-weight: 800; cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex; justify-content: center; align-items: center; gap: 8px;
+            box-shadow: 0 10px 20px -5px rgba(168, 85, 247, 0.3);
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 25px -5px rgba(45, 212, 191, 0.5);
+        }
+        .btn:active { transform: translateY(0); }
+        .btn svg { width: 20px; height: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="space-background"></div>
+<div class="aurora-container">
+    <div class="aurora-blob aurora-1"></div>
+    <div class="aurora-blob aurora-2"></div>
+</div>
+
+<canvas id="stars"></canvas>
+
+<div class="container">
+    <div class="card">
+        <div class="header">
+            <h1>Setiker Teks Brat</h1>
+            <p>Brat Generator</p>
+        </div>
+
+        <div class="input-group">
+            <label>Input Teks</label>
+            <input type="text" id="textInput" class="input-box" placeholder="Ketik sesuatu..." value="">
+        </div>
+
+        <div class="canvas-container">
+            <canvas id="canvas" width="2048" height="2048"></canvas>
+        </div>
+
+        <button id="downloadBtn" class="btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download Gambar
+        </button>
+    </div>
+</div>
+
+<script>
+    /* =========================================
+       1. SMART GENERATOR (AUTO-WRAP & LOW-FI PUDAR EFFECT)
+       ========================================= */
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+    const input = document.getElementById('textInput');
+    const btn = document.getElementById('downloadBtn');
+
+    // Fungsi pemotong teks pintar (Auto Spasi Bawah)
+    function getLines(text, maxWidth) {
+        let words = text.split(' ');
+        let lines = [];
+        let currentLine = '';
+
+        for (let i = 0; i < words.length; i++) {
+            let word = words[i];
+            
+            // Jika satu kata terlalu panjang melebihi lebar layar, potong paksa per karakter
+            if (ctx.measureText(word).width > maxWidth) {
+                if (currentLine) {
+                    lines.push(currentLine);
+                    currentLine = '';
+                }
+                let chars = word.split('');
+                let tempLine = '';
+                for (let j = 0; j < chars.length; j++) {
+                    if (ctx.measureText(tempLine + chars[j]).width < maxWidth) {
+                        tempLine += chars[j];
+                    } else {
+                        lines.push(tempLine);
+                        tempLine = chars[j];
+                    }
+                }
+                currentLine = tempLine;
+            } else {
+                let testLine = currentLine ? currentLine + " " + word : word;
+                if (ctx.measureText(testLine).width < maxWidth) {
+                    currentLine = testLine;
+                } else {
+                    lines.push(currentLine);
+                    currentLine = word;
+                }
+            }
+        }
+        if (currentLine) lines.push(currentLine);
+        return lines;
+    }
+
+    function drawBrat() {
+        // Background Putih Bersih
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        // Styling Teks - EFEK PUDAR / FUZZY
+        // Menggunakan opasitas 90% (rgba) + Blur sedang + Contrast untuk hasil cetakan pudar otentik
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.88)'; 
+        ctx.filter = 'blur(3.2px) contrast(1.1)'; 
+        ctx.textBaseline = 'top';
+        ctx.textAlign = 'left';
+        
+        canvas.style.letterSpacing = '-10px';
+        ctx.letterSpacing = '-10px';
+        
+        const text = input.value.toLowerCase() || '';
+        const padding = 130;
+        const maxWidth = canvas.width - (padding * 2);
+        
+        let fontSize = 420; // Ukuran standar awal
+        ctx.font = `${fontSize}px Arial, sans-serif`;
+
+        let lines = getLines(text, maxWidth);
+
+        // AUTO-SHRINK: Jika baris teks terlalu banyak kebawah, otomatis kecilkan font agar muat
+        const maxCanvasHeight = canvas.height - (padding * 2);
+        while (lines.length * fontSize * 0.95 > maxCanvasHeight && fontSize > 100) {
+            fontSize -= 15;
+            ctx.font = `${fontSize}px Arial, sans-serif`;
+            lines = getLines(text, maxWidth);
+        }
+
+        // Render teks ke kanvas
+        lines.forEach((line, i) => {
+            ctx.fillText(line, padding, padding + (i * fontSize * 0.92));
+        });
+    }
+
+    input.addEventListener('input', drawBrat);
+    btn.addEventListener('click', () => {
+        const link = document.createElement('a');
+        link.download = 'cosmic-brat.jpg';
+        link.href = canvas.toDataURL('image/jpeg', 1.0);
+        link.click();
+    });
+
+    drawBrat();
+
+    /* =========================================
+       2. ANIMASI BINTANG KEDIP CEPAT & TAJAM (RAPID SPARKLE)
+       ========================================= */
+    const starCanvas = document.getElementById('stars');
+    const starCtx = starCanvas.getContext('2d');
+    
+    let starsArray = [];
+    const numStars = 120; // Jumlah optimal agar berkedip indah tanpa lag
+
+    function resizeStars() {
+        starCanvas.width = window.innerWidth;
+        starCanvas.height = window.innerHeight;
+    }
+    window.addEventListener('resize', resizeStars);
+    resizeStars();
+
+    class Star {
+        constructor() {
+            this.x = Math.random() * starCanvas.width;
+            this.y = Math.random() * starCanvas.height;
+            this.size = (Math.random() * 1.5) + 0.5; // Bintang berukuran mikro tajam
+            this.speedX = (Math.random() - 0.5) * 0.3; // Bergerak sangat pelan
+            this.speedY = (Math.random() - 0.5) * 0.3;
+            this.opacity = Math.random();
+            // Frekuensi kelap-kelip dinaikkan agar berkedip singkat & konstan
+            this.fadeSpeed = (Math.random() * 0.06) + 0.04; 
+            this.fadingOut = Math.random() > 0.5;
+        }
+
+        update() {
+            this.x += this.speedX;
+            this.y += this.speedY;
+
+            // Logika kedipan singkat
+            if (this.fadingOut) {
+                this.opacity -= this.fadeSpeed;
+                if (this.opacity <= 0.1) {
+                    this.opacity = 0.1;
+                    this.fadingOut = false;
+                }
+            } else {
+                this.opacity += this.fadeSpeed;
+                if (this.opacity >= 1.0) {
+                    this.opacity = 1.0;
+                    this.fadingOut = true;
+                }
+            }
+
+            // Loop pinggir layar
+            if (this.x < 0) this.x = starCanvas.width;
+            if (this.x > starCanvas.width) this.x = 0;
+            if (this.y < 0) this.y = starCanvas.height;
+            if (this.y > starCanvas.height) this.y = 0;
+        }
+
+        draw() {
+            starCtx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
+            starCtx.beginPath();
+            starCtx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+            starCtx.fill();
+        }
+    }
+
+    function initStars() {
+        starsArray = [];
+        for (let i = 0; i < numStars; i++) {
+            starsArray.push(new Star());
+        }
+    }
+
+    function animateStars() {
+        starCtx.clearRect(0, 0, starCanvas.width, starCanvas.height);
+        starsArray.forEach(star => {
+            star.update();
+            star.draw();
+        });
+        requestAnimationFrame(animateStars);
+    }
+
+    initStars();
+    animateStars();
+</script>
+</body>
+</html>
