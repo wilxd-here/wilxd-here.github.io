@@ -1,1 +1,80 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>XAERISOFT LIVE | Global Tracking</title>
+    <!-- Map Engine Base -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- Leaflet.markercluster CSS (Tambahan Baru) -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="manifest" href="manifest.json"> <!-- PWA Support -->
+</head>
+<body>
+    <!-- Fullscreen Map Container -->
+    <div id="map-container"></div>
 
+    <!-- Transparent Header -->
+    <header class="glass-panel">
+        <div class="logo-area">
+            <div class="logo-icon">🌍</div>
+            <h1 class="neon-text">XAERISOFT LIVE</h1>
+        </div>
+        <div class="search-box">
+            <input type="text" id="global-search" placeholder="Search flights, airports, cities..." autocomplete="off">
+            <span class="search-icon">🔍</span>
+        </div>
+        <div class="header-actions">
+            <button class="icon-btn" id="btn-settings" aria-label="Settings">⚙️</button>
+            <button class="profile-btn" aria-label="Profile">
+                <img src="https://ui-avatars.com/api/?name=User&background=b026ff&color=fff" alt="Profile">
+            </button>
+        </div>
+    </header>
+
+    <!-- Mode Selector -->
+    <nav class="mode-selector glass-panel">
+        <button class="mode-btn active" data-mode="flight">✈ Flight</button>
+        <button class="mode-btn" data-mode="weather">🌦 Weather</button>
+    </nav>
+
+    <!-- Floating Action Button (FAB) -->
+    <div class="fab-container">
+        <div class="fab-menu" id="fab-menu">
+            <button class="fab-item" data-action="layers">📚 Layers</button>
+            <button class="fab-item" data-action="style">🗺 Map Style</button>
+            <button class="fab-item" data-action="locate">📍 Locate Me</button>
+            <button class="fab-item" data-action="measure">📏 Measure</button>
+            <button class="fab-item" data-action="fullscreen">🔲 Fullscreen</button>
+        </div>
+        <button class="fab-main glass-panel aurora-bg" id="fab-main">🛠</button>
+    </div>
+
+    <!-- Bottom Sheet -->
+    <div class="bottom-sheet glass-panel" id="bottom-sheet">
+        <div class="drag-handle"></div>
+        <button class="close-sheet" id="btn-close-sheet">✕</button>
+        <div class="sheet-content" id="sheet-content">
+            <!-- Injected via UI.js -->
+        </div>
+    </div>
+
+    <!-- Performance Monitor -->
+    <div id="fps-counter" class="glass-panel text-xs">FPS: 60</div>
+
+    <!-- Scripts -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
+    <!-- Leaflet.markercluster JS (Tambahan Baru) -->
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js" defer></script>
+    
+    <script src="ui.js" defer></script>
+    <script src="search.js" defer></script>
+    <script src="map.js" defer></script>
+    <script src="flight.js" defer></script>
+    <script src="weather.js" defer></script>
+    <script src="script.js" defer></script>
+</body>
+</html>
