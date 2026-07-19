@@ -1,1 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xaerisoft Media Compressor</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="background-container">
+        <canvas id="bg-canvas"></canvas>
+        <div class="aurora aurora-1"></div>
+        <div class="aurora aurora-2"></div>
+        <div class="aurora aurora-3"></div>
+    </div>
 
+    <main class="app-container">
+        
+        <header>
+            <h1 class="logo cursor-pointer" onclick="app.navigate('home')">
+                <span class="gradient-text">Xaerisoft</span> Media
+            </h1>
+            <p class="subtitle">Premium Client-Side Compression</p>
+        </header>
+
+        <section id="view-home" class="view active fade-in">
+            <div class="cards-grid">
+                <div class="glass-card tool-card" onclick="app.navigate('image')">
+                    <div class="card-icon glow-purple">🖼️</div>
+                    <h2>Image Compressor</h2>
+                    <p>Compress JPG, PNG, WEBP images without losing too much quality.</p>
+                    <button class="btn-primary ripple">Open Tool</button>
+                </div>
+                <div class="glass-card tool-card" onclick="app.navigate('video')">
+                    <div class="card-icon glow-violet">🎥</div>
+                    <h2>Video Compressor</h2>
+                    <p>Compress MP4, WebM, MOV videos directly in your browser.</p>
+                    <button class="btn-primary ripple">Open Tool</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-image" class="view hidden">
+            <button class="btn-back" onclick="app.navigate('home')">← Back to Home</button>
+            <div class="glass-card workspace">
+                <h2>Image Compressor</h2>
+                
+                <div class="drop-zone" id="image-drop-zone">
+                    <div class="drop-content">
+                        <span class="drop-icon">📁</span>
+                        <p>Drag & Drop your image here</p>
+                        <span>or</span>
+                        <label class="btn-secondary ripple">
+                            Browse File
+                            <input type="file" id="image-input" accept="image/png, image/jpeg, image/webp" hidden>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="image-editor" class="editor-section hidden">
+                    <div class="preview-container">
+                        <div class="preview-box">
+                            <h3>Original</h3>
+                            <div class="img-wrapper">
+                                <img id="img-original" src="" alt="Original Preview">
+                            </div>
+                            <div class="stats">
+                                <span id="img-orig-size">0 KB</span>
+                                <span id="img-orig-res">0x0</span>
+                            </div>
+                        </div>
+                        <div class="preview-box">
+                            <h3>Compressed <span class="savings badge" id="img-savings">0%</span></h3>
+                            <div class="img-wrapper">
+                                <img id="img-compressed" src="" alt="Compressed Preview">
+                            </div>
+                            <div class="stats">
+                                <span id="img-comp-size">0 KB</span>
+                                <span id="img-comp-res">0x0</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="slider-group">
+                            <label for="img-quality">Quality: <span id="img-quality-val">80%</span></label>
+                            <input type="range" id="img-quality" min="10" max="100" value="80">
+                        </div>
+                        <div class="action-buttons">
+                            <button class="btn-secondary" id="btn-img-reset">Reset</button>
+                            <button class="btn-primary glow-btn" id="btn-img-download">Download Compressed</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="view-video" class="view hidden">
+            <button class="btn-back" onclick="app.navigate('home')">← Back to Home</button>
+            <div class="glass-card workspace">
+                <h2>Video Compressor</h2>
+                
+                <div class="drop-zone" id="video-drop-zone">
+                    <div class="drop-content">
+                        <span class="drop-icon">🎬</span>
+                        <p>Drag & Drop your video here</p>
+                        <span>or</span>
+                        <label class="btn-secondary ripple">
+                            Browse File
+                            <input type="file" id="video-input" accept="video/mp4, video/webm, video/quicktime" hidden>
+                        </label>
+                    </div>
+                </div>
+
+                <div id="video-editor" class="editor-section hidden">
+                    
+                    <div class="alert-box">
+                        <strong>Browser Limitation Notice:</strong> Native pure client-side video compression without external libraries (like FFmpeg.wasm) is not fully supported by modern browsers. Displaying metadata and preview only.
+                    </div>
+
+                    <div class="preview-container video-preview">
+                        <video id="vid-preview" controls></video>
+                    </div>
+
+                    <div class="video-info-grid">
+                        <div class="info-item">
+                            <span class="label">Original Size</span>
+                            <span class="value" id="vid-orig-size">0 MB</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Duration</span>
+                            <span class="value" id="vid-duration">00:00</span>
+                        </div>
+                        <div class="info-item">
+                            <span class="label">Resolution</span>
+                            <span class="value" id="vid-res">0x0</span>
+                        </div>
+                    </div>
+
+                    <div class="controls">
+                        <div class="quality-selector">
+                            <label>Target Quality (Simulation)</label>
+                            <div class="quality-btns">
+                                <button class="btn-quality active" data-q="medium">Medium</button>
+                                <button class="btn-quality" data-q="high">High</button>
+                                <button class="btn-quality" data-q="ultra">Ultra</button>
+                            </div>
+                        </div>
+                        
+                        <div class="simulation-stats">
+                            <p>Estimated Compressed Size: <span id="vid-comp-size" class="gradient-text font-bold">0 MB</span></p>
+                        </div>
+
+                        <div class="action-buttons">
+                            <button class="btn-secondary" id="btn-vid-reset">Reset</button>
+                            <button class="btn-primary glow-btn disabled" id="btn-vid-download" disabled title="Requires backend or WASM">Download (Not Supported)</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer>
+        <p><strong>Xaerisoft Media Compressor</strong></p>
+        <p>Created by WillXD | Copyright &copy; 2026 WillXD. All Rights Reserved.</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
