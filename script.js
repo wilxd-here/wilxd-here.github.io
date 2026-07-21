@@ -1,277 +1,237 @@
-// ==========================================
-// 1. Loading Screen & Init
-// ==========================================
-window.addEventListener('load', () => {
-    const loader = document.getElementById('loader');
-    setTimeout(() => {
-        loader.style.opacity = '0';
-        setTimeout(() => {
-            loader.style.display = 'none';
-        }, 800);
-    }, 1000);
-    document.getElementById('year').textContent = new Date().getFullYear();
-});
+// ── UPLOADED URL STORE ──
+const uploadedUrls = { ttqc: null, iqcimg: null, musiccard: null };
 
-// ==========================================
-// 2. Scroll Progress Bar
-// ==========================================
-window.addEventListener('scroll', () => {
-    const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-    const scrolled = (winScroll / height) * 100;
-    document.getElementById('progress-bar').style.width = scrolled + '%';
-});
-
-// ==========================================
-// 3. Custom Typing Animation
-// ==========================================
-const phrases = ["Welcome", "Nice to meet you", "Enjoy your visit"];
-const typingTextElement = document.getElementById('typing-text');
-let phraseIndex = 0;
-let charIndex = 0;
-let isDeleting = false;
-let typingSpeed = 100;
-
-function typeEffect() {
-    const currentPhrase = phrases[phraseIndex];
-    if (isDeleting) {
-        typingTextElement.textContent = currentPhrase.substring(0, charIndex - 1);
-        charIndex--;
-        typingSpeed = 50; 
-    } else {
-        typingTextElement.textContent = currentPhrase.substring(0, charIndex + 1);
-        charIndex++;
-        typingSpeed = 120; 
-    }
-
-    if (!isDeleting && charIndex === currentPhrase.length) {
-        isDeleting = true;
-        typingSpeed = 2000; 
-    } else if (isDeleting && charIndex === 0) {
-        isDeleting = false;
-        phraseIndex = (phraseIndex + 1) % phrases.length;
-        typingSpeed = 500; 
-    }
-    setTimeout(typeEffect, typingSpeed);
-}
-setTimeout(typeEffect, 2000);
-
-// ==========================================
-// 4. Scroll Reveal (Versi Diperbaiki)
-// ==========================================
-const revealElements = document.querySelectorAll('.reveal');
-const revealOptions = { 
-    threshold: 0.05, // Batas kecil agar mudah terdeteksi di HP
-    rootMargin: "0px" // Dihilangkan offset negatifnya
-};
-
-const revealOnScroll = new IntersectionObserver(function(entries, observer) {
-    entries.forEach(entry => {
-        if (!entry.isIntersecting) return;
-        entry.target.classList.add('reveal-visible');
-        observer.unobserve(entry.target);
-    });
-}, revealOptions);
-
-revealElements.forEach(el => revealOnScroll.observe(el));
-
-// ==========================================
-// 5. Music Player Toggle
-// ==========================================
-const musicBtn = document.getElementById('music-btn');
-const bgMusic = document.getElementById('bg-music');
-const iconPlay = document.getElementById('icon-play');
-const iconPause = document.getElementById('icon-pause');
-let isPlaying = false;
-bgMusic.volume = 0.4; 
-
-musicBtn.addEventListener('click', () => {
-    if (isPlaying) {
-        bgMusic.pause();
-        iconPlay.style.display = 'block';
-        iconPause.style.display = 'none';
-        musicBtn.classList.remove('playing');
-    } else {
-        let playPromise = bgMusic.play();
-        if (playPromise !== undefined) {
-            playPromise.then(_ => {
-                iconPlay.style.display = 'none';
-                iconPause.style.display = 'block';
-                musicBtn.classList.add('playing');
-            }).catch(error => {
-                console.log("Audio play blocked:", error);
-            });
-        }
-    }
-    isPlaying = !isPlaying;
-});
-
-// ==========================================
-// 6. Back To Top
-// ==========================================
-const backToTopBtn = document.getElementById('back-to-top');
-window.addEventListener('scroll', () => {
-    if (window.scrollY > 500) {
-        backToTopBtn.classList.add('visible');
-    } else {
-        backToTopBtn.classList.remove('visible');
-    }
-});
-backToTopBtn.addEventListener('click', () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-});
-
-// ==========================================
-// 7. Ripple Effect
-// ==========================================
-const rippleButtons = document.querySelectorAll('.ripple');
-rippleButtons.forEach(btn => {
-    btn.addEventListener('click', function(e) {
-        let x = e.clientX - e.target.getBoundingClientRect().left;
-        let y = e.clientY - e.target.getBoundingClientRect().top;
-        let ripples = document.createElement('span');
-        ripples.classList.add('ripple-circle');
-        ripples.style.left = x + 'px';
-        ripples.style.top = y + 'px';
-        this.appendChild(ripples);
-        setTimeout(() => { ripples.remove(); }, 600);
-    });
-});
-
-// ==========================================
-// 8. Particle Engine
-// ==========================================
-const canvas = document.getElementById('particles-canvas');
-const ctx = canvas.getContext('2d');
-let particlesArray = [];
-
-function resizeCanvas() {
-    canvas.width = window.innerWidth;
-    canvas.height = window.innerHeight;
-}
-window.addEventListener('resize', resizeCanvas);
-resizeCanvas();
-
-class Particle {
-    constructor() {
-        this.x = Math.random() * canvas.width;
-        this.y = Math.random() * canvas.height;
-        this.size = Math.random() * 2;
-        this.speedX = (Math.random() - 0.5) * 0.5;
-        this.speedY = (Math.random() - 0.5) * 0.5;
-        this.opacity = Math.random() * 0.5 + 0.1;
-    }
-    update() {
-        this.x += this.speedX;
-        this.y += this.speedY;
-        if (this.x < 0) this.x = canvas.width;
-        if (this.x > canvas.width) this.x = 0;
-        if (this.y < 0) this.y = canvas.height;
-        if (this.y > canvas.height) this.y = 0;
-    }
-    draw() {
-        ctx.fillStyle = `rgba(255, 255, 255, ${this.opacity})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-    }
+// ── TABS ──
+function switchTab(id, btn) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('panel-' + id).classList.add('active');
+  btn.classList.add('active');
 }
 
-function initParticles() {
-    particlesArray = [];
-    let numberOfParticles = window.innerWidth < 768 ? 50 : 120;
-    for (let i = 0; i < numberOfParticles; i++) {
-        particlesArray.push(new Particle());
-    }
+// ── TOAST ──
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
 }
 
-function animateParticles() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    for (let i = 0; i < particlesArray.length; i++) {
-        particlesArray[i].update();
-        particlesArray[i].draw();
-    }
-    requestAnimationFrame(animateParticles);
+// ── RESULT RENDER (API URL DIAMANKAN) ──
+function showResult(id, blobUrl) {
+  const box = document.getElementById('result-' + id);
+  box.innerHTML = `
+    <p class="result-label">— Hasil Generate</p>
+    <div class="result-img-wrap">
+      <!-- Menggunakan Blob URL (lokal), jadi URL API asli tersembunyi sepenuhnya dari Inspect Element -->
+      <img src="${blobUrl}" alt="Generated Image" onerror="imgError('${id}')"/>
+    </div>
+    <div class="result-actions">
+      <!-- Fungsi download langsung tembak ke memori lokal -->
+      <button class="btn-dl" onclick="downloadImg('${blobUrl}', '${id}')">⬇ DOWNLOAD</button>
+      <!-- Tombol COPY URL dihapus agar API tidak bocor ke publik -->
+    </div>
+  `;
+  box.classList.add('show');
+  box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
-initParticles();
-animateParticles();
-
-// ==========================================
-// 9. Live Digital Clock, Date & Location (OpenStreetMap)
-// ==========================================
-let userLocation = "📍 Indonesia"; // Fallback awal
-let isLocationFetched = false;
-
-// 1. Fungsi untuk mengambil lokasi 1x saat pertama kali web dibuka
-function initLocation() {
-    // Jika browser tidak mendukung Geolocation
-    if (!navigator.geolocation) {
-        isLocationFetched = true;
-        return; 
-    }
-
-    navigator.geolocation.getCurrentPosition(
-        async (position) => {
-            try {
-                const lat = position.coords.latitude;
-                const lon = position.coords.longitude;
-                
-                // Fetch API OpenStreetMap Nominatim (Tanpa API Key)
-                const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1&accept-language=id`);
-                const data = await response.json();
-                
-                if (data && data.address) {
-                    const city = data.address.city || data.address.regency || data.address.county || data.address.town || "Indonesia";
-                    const state = data.address.state || "";
-                    
-                    if (city !== "Indonesia" && state) {
-                        userLocation = `📍 ${city}, ${state}`;
-                    }
-                }
-            } catch (error) {
-                // Jangan tampilkan error jika fetch gagal, biarkan fallback "📍 Indonesia"
-            } finally {
-                isLocationFetched = true;
-            }
-        },
-        (error) => {
-            // Jangan tampilkan peringatan jika user MENOLAK izin lokasi
-            isLocationFetched = true;
-        }
-    );
+function imgError(id) {
+  showError(id, 'Gambar gagal dimuat. Cek koneksi atau parameter input.');
 }
 
-// Jalankan pencarian lokasi
-initLocation();
+function showError(id, msg) {
+  const e = document.getElementById('err-' + id);
+  e.textContent = '⚠ ' + msg;
+  e.classList.add('show');
+  const box = document.getElementById('result-' + id);
+  box.classList.remove('show');
+}
 
-// 2. Fungsi update widget secara real-time
-function updateLiveWidget() {
-    const now = new Date();
+function clearError(id) {
+  const e = document.getElementById('err-' + id);
+  if(e) e.classList.remove('show');
+}
 
-    // -- Update Jam (HH:MM:SS WIB) --
-    const hours = String(now.getHours()).padStart(2, '0');
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    document.getElementById('widget-time').textContent = `⌚ ${hours}:${minutes}:${seconds} WIB`;
+// ── DOWNLOAD ──
+function downloadImg(blobUrl, id) {
+  try {
+    const a = document.createElement('a');
+    a.href = blobUrl; // Download dari file lokal yang udah di fetch
+    a.download = 'tools-' + id + '-' + Date.now() + '.png';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('Download berhasil!');
+  } catch(e) {
+    showToast('Download gagal.');
+  }
+}
 
-    // -- Update Tanggal --
-    const daysIndo = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
-    const monthsIndo = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+// ── BUILD URLS & GENERATE (FETCH SISTEM) ──
+function encode(s) { return encodeURIComponent(s); }
+
+// Menggunakan Async/Await biar nge-fetch gambar di background
+async function generate(id) {
+  clearError(id);
+  let url = '';
+
+  if (id === 'wmp1') {
+    const text = document.getElementById('wmp1-text').value.trim();
+    if (!text) return showToast('Isi teks terlebih dahulu!');
+    url = `https://apii.nexadev.my.id/wmp1?text=${encode(text)}`;
+
+  } else if (id === 'wmp2') {
+    const text = document.getElementById('wmp2-text').value.trim();
+    if (!text) return showToast('Isi teks terlebih dahulu!');
+    url = `https://apii.nexadev.my.id/wmp2?text=${encode(text)}`;
+
+  } else if (id === 'fakeff') {
+    const usn = document.getElementById('fakeff-usn').value.trim();
+    if (!usn) return showToast('Isi username terlebih dahulu!');
+    url = `https://apii.nexadev.my.id/fakeff?usn=${encode(usn)}`;
+
+  } else if (id === 'nokia') {
+    const text  = document.getElementById('nokia-text').value.trim();
+    const from  = document.getElementById('nokia-from').value.trim();
+    const date  = document.getElementById('nokia-date').value.trim();
+    const time  = document.getElementById('nokia-time').value.trim();
+    const title = document.getElementById('nokia-title').value.trim();
+    if (!text) return showToast('Isi pesan Nokia!');
+    url = `https://apii.nexadev.my.id/nokia?text=${encode(text)}&from=${encode(from)}&date=${encode(date)}&time=${encode(time)}&title=${encode(title)}`;
+
+  } else if (id === 'ttqc') {
+    const imgUrl = uploadedUrls['ttqc'];
+    const name   = document.getElementById('ttqc-name').value.trim();
+    const text   = document.getElementById('ttqc-text').value.trim();
+    if (!name || !text) return showToast('Isi nama dan teks!');
+    url = `https://apii.nexadev.my.id/ttqc?url=${encode(imgUrl || '')}&name=${encode(name)}&text=${encode(text)}`;
+
+  } else if (id === 'iqcimg') {
+    const imgUrl = uploadedUrls['iqcimg'];
+    const text   = document.getElementById('iqcimg-text').value.trim();
+    const time   = document.getElementById('iqcimg-time').value.trim();
+    if (!text) return showToast('Isi teks!');
+    url = `https://apii.nexadev.my.id/iqc-dark?text=${encode(text)}&time=${encode(time)}&url=${encode(imgUrl || '')}`;
+
+  } else if (id === 'musiccard') {
+    const judul = document.getElementById('musiccard-judul').value.trim();
+    const nama  = document.getElementById('musiccard-nama').value.trim();
+    const imgUrl = uploadedUrls['musiccard'];
+    if (!judul || !nama) return showToast('Isi judul dan nama artis!');
+    url = `https://api.nexray.eu.cc/canvas/musiccard?judul=${encode(judul)}&nama=${encode(nama)}&image_url=${encode(imgUrl || '')}`;
+
+  } else if (id === 'iqcdark') {
+    const text = document.getElementById('iqcdark-text').value.trim();
+    const time = document.getElementById('iqcdark-time').value.trim();
+    if (!text) return showToast('Isi teks!');
+    url = `https://apii.nexadev.my.id/iqc-dark?text=${encode(text)}&time=${encode(time)}`;
+  }
+
+  if (!url) return;
+
+  // Tangkap event button untuk ngasih efek loading
+  const btn = event ? event.currentTarget : null;
+  if (btn) {
+    btn.classList.add('loading');
+    btn.innerHTML = '<span class="spinner"></span> GENERATING...';
+  }
+
+  try {
+    // 1. Fetch gambar langsung sebagai Data mentah (Blob) di background
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('API/Network Error');
     
-    const dayName = daysIndo[now.getDay()];
-    const date = now.getDate();
-    const monthName = monthsIndo[now.getMonth()];
-    const year = now.getFullYear();
-    document.getElementById('widget-date').textContent = `📅 ${dayName}, ${date} ${monthName} ${year}`;
+    // 2. Ubah data mentah menjadi Blob Image
+    const blob = await response.blob();
+    
+    // 3. Buat URL Sementara/Lokal (Format: blob:http://domainlu.com/xxx-xxx)
+    const blobUrl = URL.createObjectURL(blob);
 
-    // -- Tampilkan Lokasi --
-    // Akan menampilkan "Mencari lokasi..." sampai proses fetch selesai atau gagal
-    if (isLocationFetched) {
-        document.getElementById('widget-location').textContent = userLocation;
+    if (btn) {
+      btn.classList.remove('loading');
+      btn.textContent = '⚡ GENERATE';
     }
+
+    // 4. Tampilkan gambar pakai URL lokal. URL API bener-bener gak nyentuh HTML
+    showResult(id, blobUrl);
+    showToast('Gambar berhasil dibuat!');
+  } catch (err) {
+    if (btn) {
+      btn.classList.remove('loading');
+      btn.textContent = '⚡ GENERATE';
+    }
+    // Error biasanya karena API nge-block CORS. Pastikan API lu izinin aksesnya.
+    showError(id, 'Gagal render gambar. Cek koneksi API.');
+    showToast('Gagal memuat.');
+  }
 }
 
-// Jalankan fungsi update setiap 1 detik (1000ms)
-setInterval(updateLiveWidget, 1000);
-updateLiveWidget();
+// ── DRAG & DROP UPLOAD (URL DIAMANKAN) ──
+function onDragOver(e, id) {
+  e.preventDefault();
+  document.getElementById('drop-' + id).classList.add('dragover');
+}
+
+function onDragLeave(e, id) {
+  document.getElementById('drop-' + id).classList.remove('dragover');
+}
+
+function onDrop(e, id) {
+  e.preventDefault();
+  document.getElementById('drop-' + id).classList.remove('dragover');
+  const file = e.dataTransfer.files[0];
+  if (file) uploadFile(id, file);
+}
+
+function handleFile(id) {
+  const input = document.getElementById('file-' + id);
+  if (input.files[0]) uploadFile(id, input.files[0]);
+}
+
+function removeUpload(id) {
+  uploadedUrls[id] = null;
+  document.getElementById('preview-' + id).classList.remove('show');
+  document.getElementById('file-' + id).value = '';
+  document.getElementById('drop-' + id).style.display = '';
+}
+
+async function uploadFile(id, file) {
+  const drop = document.getElementById('drop-' + id);
+  const preview = document.getElementById('preview-' + id);
+  const previewImg = document.getElementById('preview-img-' + id);
+  const previewFname = document.getElementById('preview-fname-' + id);
+  const previewUrl = document.getElementById('preview-url-' + id);
+
+  // Local preview
+  const reader = new FileReader();
+  reader.onload = e => { previewImg.src = e.target.result; };
+  reader.readAsDataURL(file);
+  previewFname.textContent = file.name;
+  previewUrl.textContent = 'Mengupload...';
+  preview.classList.add('show');
+  drop.style.display = 'none';
+
+  // Upload to Nexa uploader
+  try {
+    const formData = new FormData();
+    formData.append('files[]', file);
+    const res = await fetch('https://api.nexadev.my.id/uploder/', {
+      method: 'POST',
+      body: formData
+    });
+    const data = await res.json();
+    if (data.success && data.files && data.files[0] && data.files[0].url) {
+      uploadedUrls[id] = data.files[0].url;
+      // Menyembunyikan link API yang terekspos di bawah foto dengan pesan konfirmasi saja
+      previewUrl.textContent = 'Upload Selesai ✔'; 
+      showToast('Upload berhasil!');
+    } else {
+      throw new Error('Upload gagal');
+    }
+  } catch(err) {
+    previewUrl.textContent = '⚠ Upload gagal — coba lagi.';
+    uploadedUrls[id] = null;
+    showToast('Upload gagal!');
+  }
+}
