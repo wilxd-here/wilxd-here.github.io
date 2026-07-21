@@ -55,14 +55,29 @@ function clearError(id) {
 async function downloadImg(url, id) {
   try {
     showToast('Mengunduh gambar...');
+    
+    // Fetch gambar dari API dan ubah menjadi Blob (data mentah)
+    const response = await fetch(url);
+    if (!response.ok) throw new Error('Gagal mengambil gambar dari API');
+    
+    const blob = await response.blob();
+    
+    // Buat URL sementara (local) dari blob tersebut
+    const blobUrl = URL.createObjectURL(blob);
+    
+    // Proses download menggunakan URL lokal
     const a = document.createElement('a');
-    a.href = url;
+    a.href = blobUrl;
     a.download = 'tools-' + id + '-' + Date.now() + '.png';
-    a.target = '_blank';
     document.body.appendChild(a);
     a.click();
+    
+    // Hapus elemen dan bersihkan URL memori
     document.body.removeChild(a);
+    URL.revokeObjectURL(blobUrl);
+    
   } catch(e) {
+    // Fallback kalau API memblokir CORS
     showToast('Download gagal: buka URL langsung.');
     window.open(url, '_blank');
   }
