@@ -19,33 +19,25 @@
 }
 
 /* =========================================
-   RESET & BASE STYLES
+   RESET & BASE STYLES (NO-SCROLL ENABLED)
    ========================================= */
 * { margin: 0; padding: 0; box-sizing: border-box; }
-html { scroll-behavior: smooth; }
-body {
+
+html, body {
+    height: 100vh;
+    overflow: hidden; /* Mengunci scroll */
     background-color: var(--bg-dark);
     color: var(--text-main);
     font-family: var(--font-body);
-    overflow-x: hidden;
-    line-height: 1.6;
+    line-height: 1.4;
     -webkit-font-smoothing: antialiased;
+    display: flex;
+    flex-direction: column;
 }
 
-/* Custom Scrollbar */
-::-webkit-scrollbar { width: 8px; }
-::-webkit-scrollbar-track { background: var(--bg-dark); }
-::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: var(--primary); }
-
-/* Scroll Progress Bar */
-#progress-bar {
-    position: fixed;
-    top: 0; left: 0; height: 3px;
-    background: linear-gradient(90deg, var(--primary), #00d2ff);
-    width: 0%; z-index: 9999;
-    box-shadow: 0 0 10px var(--primary-glow);
-    transition: width 0.1s ease;
+/* Scrollbar & Scroll Progress Dihilangkan Karena 1 Layar */
+::-webkit-scrollbar, #progress-bar, .scroll-indicator, #back-to-top { 
+    display: none !important; 
 }
 
 /* =========================================
@@ -94,21 +86,28 @@ body {
 }
 
 /* =========================================
-   UTILITIES & GLASSMORPHISM
+   UTILITIES & COMPACT LAYOUT
    ========================================= */
-.container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-.full-height {
-    min-height: 100vh; display: flex; flex-direction: column;
-    justify-content: center; align-items: center; position: relative;
+.container { 
+    width: 100%;
+    max-width: 1200px; 
+    margin: 0 auto; 
+    padding: 2vh 20px; /* Padding dipres */
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Menengahkan seluruh konten secara vertikal */
+    gap: 20px;
 }
-.section-padding { padding: 100px 0; }
+
 .text-center { text-align: center; }
 
 .glass-card {
     background: var(--bg-card);
     backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
-    border-radius: 24px; padding: 40px;
+    border-radius: 20px; /* Sedikit lebih kecil */
+    padding: 20px; /* Padding dipres agar muat 1 layar */
     box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     transition: var(--transition); position: relative; overflow: hidden;
 }
@@ -117,16 +116,16 @@ body {
     background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
 }
 .glass-card:hover {
-    transform: translateY(-5px); border-color: var(--glass-border-hover);
+    transform: translateY(-3px); border-color: var(--glass-border-hover);
     box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4), 0 0 20px rgba(0, 112, 243, 0.1);
 }
 
 /* =========================================
-   HERO SECTION
+   HERO SECTION (COMPACT)
    ========================================= */
-.hero-content { text-align: center; z-index: 10; }
+.hero-content { text-align: center; z-index: 10; margin-bottom: 10px; }
 .profile-container {
-    position: relative; width: 160px; height: 160px; margin: 0 auto 30px;
+    position: relative; width: 90px; height: 90px; margin: 0 auto 15px; /* Foto dikecilkan */
 }
 .profile-img {
     width: 100%; height: 100%; object-fit: cover; border-radius: 50%;
@@ -145,18 +144,18 @@ body {
     100% { transform: translate(-50%, -50%) scale(1.15); opacity: 0.7; }
 }
 .hero-title {
-    font-family: var(--font-display); font-size: 5rem; font-weight: 800;
-    letter-spacing: 0.1em; margin-bottom: 10px;
+    font-family: var(--font-display); font-size: 2.8rem; /* Font dikecilkan */
+    font-weight: 800; letter-spacing: 0.1em; margin-bottom: 5px;
     background: linear-gradient(to right, #fff, #a1a1aa);
     -webkit-background-clip: text; -webkit-text-fill-color: transparent;
     text-transform: uppercase;
 }
 .hero-subtitle {
-    font-size: 1.2rem; color: var(--text-muted);
-    margin-bottom: 20px; font-weight: 300;
+    font-size: 1rem; color: var(--text-muted);
+    margin-bottom: 10px; font-weight: 300;
 }
 .typing-container {
-    font-size: 1.5rem; font-weight: 400; color: var(--primary-light); height: 30px;
+    font-size: 1.1rem; font-weight: 400; color: var(--primary-light); height: 25px;
 }
 .cursor {
     display: inline-block; width: 3px; background-color: var(--primary-light);
@@ -164,66 +163,48 @@ body {
 }
 @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
 
-/* Scroll Indicator */
-.scroll-indicator {
-    position: absolute; bottom: 40px; display: flex; flex-direction: column;
-    align-items: center; gap: 10px; color: var(--text-muted);
-    font-size: 0.85rem; letter-spacing: 2px; text-transform: uppercase;
-    opacity: 0.6; animation: float 3s infinite ease-in-out;
-}
-.mouse {
-    width: 24px; height: 36px; border: 2px solid var(--text-muted);
-    border-radius: 12px; position: relative;
-}
-.wheel {
-    width: 4px; height: 6px; background: var(--text-muted); border-radius: 2px;
-    position: absolute; top: 6px; left: 50%; transform: translateX(-50%);
-    animation: scrollWheel 2s infinite;
-}
-@keyframes scrollWheel {
-    0% { top: 6px; opacity: 1; }
-    100% { top: 20px; opacity: 0; }
-}
-@keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(10px); }
+/* =========================================
+   GRID SECTIONS (UNTUK LAYOUT 1 LAYAR)
+   ========================================= */
+.main-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 15px;
+    width: 100%;
 }
 
-/* =========================================
-   SECTIONS (SOCIAL, WA CHANNEL)
-   ========================================= */
 .section-title {
-    font-family: var(--font-display); font-size: 2.5rem;
-    font-weight: 600; margin-bottom: 20px;
+    font-family: var(--font-display); font-size: 1.5rem;
+    font-weight: 600; margin-bottom: 15px;
 }
 
 /* Social Media */
 .social-grid {
-    display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 24px; margin-top: 50px;
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 10px;
 }
 .social-card {
     display: flex; flex-direction: column; align-items: center;
-    padding: 30px 20px; text-align: center;
+    padding: 15px 10px; text-align: center;
 }
-.social-icon { width: 50px; height: 50px; margin-bottom: 15px; color: var(--text-main); transition: var(--transition); }
+.social-icon { width: 35px; height: 35px; margin-bottom: 10px; color: var(--text-main); transition: var(--transition); }
 .social-card:hover .social-icon {
     color: var(--primary-light); transform: scale(1.1); filter: drop-shadow(0 0 10px var(--primary-glow));
 }
-.social-info h3 { font-weight: 500; font-size: 1.2rem; margin-bottom: 5px; }
-.social-info p { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 20px; }
+.social-info h3 { font-weight: 500; font-size: 0.9rem; margin-bottom: 5px; }
+.social-info p { font-size: 0.75rem; color: var(--text-muted); margin-bottom: 10px; }
 
 /* WhatsApp Channel Section */
 .wa-card {
-    text-align: center; max-width: 600px; margin: 0 auto;
+    text-align: center;
     border-color: rgba(37, 211, 102, 0.2);
     background: linear-gradient(145deg, rgba(20,20,25,0.6) 0%, rgba(10,30,15,0.4) 100%);
 }
 .wa-card:hover {
     border-color: rgba(37, 211, 102, 0.5);
-    box-shadow: 0 15px 45px rgba(0, 0, 0, 0.4), 0 0 30px rgba(37, 211, 102, 0.15);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4), 0 0 20px rgba(37, 211, 102, 0.15);
 }
-.wa-icon-container { position: relative; width: 60px; height: 60px; margin: 0 auto 20px; }
+.wa-icon-container { position: relative; width: 45px; height: 45px; margin: 0 auto 10px; }
 .wa-icon {
     color: var(--accent-green); width: 100%; height: 100%; position: relative; z-index: 2;
     animation: wa-pulse 2s infinite ease-in-out;
@@ -238,11 +219,12 @@ body {
     0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 0.4; }
     50% { transform: translate(-50%, -50%) scale(1.1); opacity: 0.6; }
 }
-.wa-title { font-family: var(--font-display); font-size: 2rem; margin-bottom: 10px; }
-.wa-subtitle { color: #e2e8f0; margin-bottom: 30px; }
+.wa-title { font-family: var(--font-display); font-size: 1.4rem; margin-bottom: 5px; }
+.wa-subtitle { color: #e2e8f0; font-size: 0.85rem; margin-bottom: 15px; }
 .wa-btn {
     background: linear-gradient(45deg, #25D366, #128C7E) !important;
     box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4) !important; border: none !important;
+    font-size: 0.85rem; padding: 8px 20px;
 }
 .wa-btn:hover { box-shadow: 0 6px 20px rgba(37, 211, 102, 0.6) !important; }
 
@@ -250,10 +232,10 @@ body {
    BUTTONS & EFFECTS
    ========================================= */
 .pill-btn {
-    display: inline-block; padding: 10px 24px;
+    display: inline-block; padding: 8px 18px;
     background: rgba(255, 255, 255, 0.05); border: 1px solid var(--glass-border);
     border-radius: 30px; color: var(--text-main); text-decoration: none;
-    font-weight: 500; font-size: 0.9rem; transition: var(--transition);
+    font-weight: 500; font-size: 0.8rem; transition: var(--transition);
     position: relative; overflow: hidden;
 }
 .pill-btn:hover {
@@ -261,99 +243,76 @@ body {
     box-shadow: 0 0 15px rgba(0, 112, 243, 0.3);
 }
 .glass-btn {
-    position: fixed; width: 50px; height: 50px; border-radius: 50%;
+    position: fixed; width: 40px; height: 40px; border-radius: 50%;
     background: var(--bg-card); backdrop-filter: blur(10px);
     border: 1px solid var(--glass-border); color: white; display: flex;
     justify-content: center; align-items: center; cursor: pointer; z-index: 9000;
     transition: var(--transition); box-shadow: 0 4px 15px rgba(0,0,0,0.3);
 }
-.glass-btn svg { width: 20px; height: 20px; }
+.glass-btn svg { width: 18px; height: 18px; }
 .glass-btn:hover {
     background: rgba(255, 255, 255, 0.1); border-color: var(--primary);
     transform: scale(1.1); box-shadow: 0 0 20px var(--primary-glow);
 }
-#music-btn { bottom: 30px; left: 30px; }
+#music-btn { bottom: 20px; left: 20px; }
 #music-btn.playing { border-color: var(--primary); animation: pulseMusic 2s infinite; }
 @keyframes pulseMusic {
     0% { box-shadow: 0 0 0 0 var(--primary-glow); }
-    70% { box-shadow: 0 0 0 15px rgba(0, 112, 243, 0); }
+    70% { box-shadow: 0 0 0 10px rgba(0, 112, 243, 0); }
     100% { box-shadow: 0 0 0 0 rgba(0, 112, 243, 0); }
 }
-#back-to-top { bottom: 30px; right: 30px; opacity: 0; pointer-events: none; transform: translateY(20px); }
-#back-to-top.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
-/* Ripple Effect */
-.ripple { position: relative; overflow: hidden; }
-.ripple .ripple-circle {
-    position: absolute; border-radius: 50%; background: rgba(255, 255, 255, 0.4);
-    transform: scale(0); animation: ripple-anim 0.6s linear; pointer-events: none;
-}
-@keyframes ripple-anim { to { transform: scale(4); opacity: 0; } }
-
-/* Scroll Reveal */
-.reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
-.reveal.reveal-visible { opacity: 1; transform: translateY(0); }
-
-footer {
-    text-align: center; padding: 40px 20px; border-top: 1px solid var(--glass-border);
-    color: var(--text-muted); font-size: 0.9rem; background: var(--bg-card); backdrop-filter: blur(10px);
-}
-
-/* Responsive */
-@media (max-width: 768px) {
-    .hero-title { font-size: 3.5rem; }
-    .hero-subtitle { font-size: 1rem; }
-    .section-padding { padding: 70px 0; }
-    .section-title { font-size: 2rem; }
-    .glass-card { padding: 30px 20px; }
-    #music-btn { bottom: 20px; left: 20px; width: 45px; height: 45px; }
-    #back-to-top { bottom: 20px; right: 20px; width: 45px; height: 45px; }
-}
-
-/* --- Efek Spesial Kartu Chatbot --- */
+/* =========================================
+   EFEK SPESIAL KARTU CHATBOT
+   ========================================= */
 .chatbot-card {
     text-align: center;
-    padding: 40px 20px;
+    padding: 20px;
     border: 1px solid rgba(0, 210, 255, 0.3);
     background: rgba(255,255,255,0.03); 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
 }
 
 .bot-icon-container {
-    display: inline-block;
-    padding: 20px;
+    display: inline-flex;
+    padding: 15px;
     background: rgba(0, 210, 255, 0.1);
     border-radius: 50%;
-    margin-bottom: 20px;
+    margin: 0 auto 15px;
     border: 1px solid rgba(0, 210, 255, 0.2);
 }
 
 .bot-icon {
-    width: 50px;
-    height: 50px;
+    width: 35px;
+    height: 35px;
     color: #00d2ff;
 }
 
 .bot-title {
-    font-size: 1.8rem;
-    margin-bottom: 10px;
+    font-size: 1.4rem;
+    margin-bottom: 5px;
     color: #00d2ff;
 }
 
 .bot-subtitle {
     color: #aaa;
-    margin-bottom: 25px;
+    font-size: 0.85rem;
+    margin-bottom: 15px;
 }
 
 .bot-btn {
     background: transparent;
     border: 2px solid #00d2ff;
     color: #00d2ff;
-    padding: 12px 30px;
+    padding: 8px 20px;
     transition: all 0.3s ease;
     border-radius: 50px;
     text-decoration: none;
     display: inline-block;
     font-weight: 600;
+    font-size: 0.85rem;
 }
 
 .bot-btn:hover {
@@ -362,25 +321,25 @@ footer {
 }
 
 /* ==========================================
-   Live Widget Styling (Lokasi, Jam, Tanggal)
+   LIVE WIDGET STYLING
    ========================================== */
 .live-widget {
-    margin-top: 20px;
-    font-size: 1rem;
+    margin: 10px auto 0;
+    font-size: 0.85rem;
     font-weight: 500;
     color: #ffffff;
     background: rgba(255, 255, 255, 0.1);
-    padding: 15px 25px;
-    border-radius: 20px;
+    padding: 10px 20px;
+    border-radius: 15px;
     display: flex;
-    flex-direction: column;
-    gap: 10px;
-    text-align: left;
+    flex-direction: row; /* Dibuat mendatar agar menghemat ruang */
+    justify-content: center;
+    gap: 15px;
+    text-align: center;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-    letter-spacing: 0.5px;
     animation: fadeIn 2s ease-in-out;
 }
 
@@ -389,11 +348,22 @@ footer {
     100% { opacity: 1; transform: translateY(0); }
 }
 
-@media screen and (max-width: 600px) {
-    .live-widget {
-        font-size: 0.9rem;
-        padding: 12px 20px;
-        align-items: center;
-        text-align: center;
-    }
+/* =========================================
+   FOOTER (TERSEMBUNYI ATAU SANGAT KECIL)
+   ========================================= */
+footer {
+    text-align: center; padding: 10px 20px; border-top: 1px solid var(--glass-border);
+    color: var(--text-muted); font-size: 0.75rem; background: transparent; 
+    margin-top: auto; /* Mendorong footer ke paling bawah layar */
+}
+
+/* =========================================
+   RESPONSIVE MOBILE MODE
+   ========================================= */
+@media (max-width: 768px) {
+    .container { padding: 2vh 15px; justify-content: flex-start; overflow-y: auto; } /* Aktifkan scroll khusus di HP jika layar kepenuhan */
+    .hero-title { font-size: 2.2rem; }
+    .hero-subtitle { font-size: 0.9rem; }
+    .live-widget { flex-direction: column; gap: 5px; font-size: 0.8rem; padding: 10px; }
+    .main-grid { grid-template-columns: 1fr; } /* Tumpuk vertikal di HP */
 }
