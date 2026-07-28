@@ -1,1 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xaerisoft Scan | Premium Cyber Security Scanner</title>
+    
+    <!-- Fonts & Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Universe Background Pattern -->
+    <div class="universe-bg"></div>
 
+    <div class="app-container">
+        <!-- Header / Navigation -->
+        <header class="glass-panel main-header">
+            <div class="logo">
+                <i class="fa-solid fa-shield-halved neon-text"></i>
+                <h1>Xaerisoft <span>Scan</span></h1>
+            </div>
+            <div class="search-bar">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="globalSearch" placeholder="Search SHA256, MD5, SHA1, URL...">
+            </div>
+            <nav>
+                <a href="#" class="active">Scanner</a>
+                <a href="#recent">Recent Scans</a>
+                <a href="#">API</a>
+            </nav>
+        </header>
+
+        <main>
+            <!-- Scanner Input Section -->
+            <section id="scanner-section" class="glass-panel scanner-box">
+                <div class="tabs">
+                    <button class="tab-btn active" data-target="file-scan"><i class="fa-solid fa-file"></i> File</button>
+                    <button class="tab-btn" data-target="url-scan"><i class="fa-solid fa-link"></i> URL</button>
+                </div>
+
+                <!-- File Scan Area -->
+                <div id="file-scan" class="scan-area active">
+                    <div class="drop-zone" id="drop-zone">
+                        <i class="fa-solid fa-cloud-arrow-up"></i>
+                        <h3>Drag & Drop file here</h3>
+                        <p>or</p>
+                        <label for="file-input" class="btn-primary">Choose File</label>
+                        <input type="file" id="file-input" hidden>
+                        <div class="file-info hidden" id="file-info">
+                            <span id="file-name">filename.exe</span>
+                            <span id="file-size">(0 MB)</span>
+                        </div>
+                    </div>
+                    <div class="progress-bar hidden" id="upload-progress">
+                        <div class="progress-fill"></div>
+                    </div>
+                    <button class="btn-scan hidden" id="btn-scan-file">Analyze File</button>
+                </div>
+
+                <!-- URL Scan Area -->
+                <div id="url-scan" class="scan-area hidden">
+                    <div class="input-group">
+                        <i class="fa-solid fa-globe"></i>
+                        <input type="text" id="url-input" placeholder="https://example.com">
+                    </div>
+                    <button class="btn-scan" id="btn-scan-url">Analyze URL</button>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-state" class="hidden">
+                    <div class="spinner"></div>
+                    <p class="neon-text">Analyzing Threats...</p>
+                </div>
+            </section>
+
+            <!-- Results Section (Hidden by default) -->
+            <section id="results-section" class="hidden">
+                <!-- Status & Score Header -->
+                <div class="result-header">
+                    <div class="glass-panel status-card">
+                        <h2>Status</h2>
+                        <h1 id="result-status" class="status-danger">Malicious</h1>
+                    </div>
+                    <div class="glass-panel score-card">
+                        <h2>Risk Score</h2>
+                        <div class="score-circle">
+                            <span id="result-score">85</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="result-grid">
+                    <!-- Left Column -->
+                    <div class="left-col">
+                        <!-- Details -->
+                        <div class="glass-panel detail-card">
+                            <h3><i class="fa-solid fa-circle-info"></i> File/URL Details</h3>
+                            <ul id="detail-list" class="data-list">
+                                <!-- Injected via JS -->
+                            </ul>
+                        </div>
+
+                        <!-- Security Analysis -->
+                        <div class="glass-panel analysis-card">
+                            <h3><i class="fa-solid fa-bug"></i> Security Analysis</h3>
+                            <div class="badge-container" id="analysis-badges">
+                                <!-- Injected via JS -->
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Right Column -->
+                    <div class="right-col">
+                        <!-- Graphs -->
+                        <div class="glass-panel graph-card">
+                            <h3><i class="fa-solid fa-chart-pie"></i> Detection Ratio</h3>
+                            <div class="charts">
+                                <div class="chart-container"><canvas id="pieChart"></canvas></div>
+                                <div class="chart-container"><canvas id="barChart"></canvas></div>
+                            </div>
+                        </div>
+
+                        <!-- Antivirus Engines -->
+                        <div class="glass-panel engines-card">
+                            <h3><i class="fa-solid fa-shield-virus"></i> Antivirus Engines</h3>
+                            <ul id="engines-list" class="data-list scrollable">
+                                <!-- Injected via JS -->
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
