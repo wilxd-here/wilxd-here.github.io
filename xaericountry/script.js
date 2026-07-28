@@ -1,314 +1,320 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    let countriesData = [];
-    let countryA = null;
-    let countryB = null;
+/* =========================================================
+   XAERISOFT CONTACT LOOKUP - PRODUCTION LOGIC
+   Architect: Senior Full Stack Engineer
+   ========================================================= */
 
-    // Elements
-    const searchAInput = document.getElementById('search-a');
-    const searchBInput = document.getElementById('search-b');
-    const sugA = document.getElementById('sug-a');
-    const sugB = document.getElementById('sug-b');
-    const btnCompare = document.getElementById('btn-compare');
-    const btnRandom = document.getElementById('btn-random');
-    const btnReset = document.getElementById('btn-reset');
-    const heroSection = document.getElementById('hero-section');
-    const resultSection = document.getElementById('result-section');
-    const loading = document.getElementById('loading');
-    const compGrid = document.getElementById('comparison-grid');
-
-    // Fetch Data
-    try {
-        const res = await fetch('countries.json');
-        countriesData = await res.json();
-    } catch (error) {
-        console.error('Error loading countries.json:', error);
-        alert('Gagal memuat data negara. Pastikan Anda menjalankan melalui Live Server.');
+// 1. CONFIGURATION & STATE
+const CONFIG = {
+    // Ganti dengan URL backend Node.js/Express Anda nanti
+    API_BASE_URL: 'http://localhost:3000/api/v1', 
+    HEADERS: {
+        'Content-Type': 'application/json',
+        // Tambahkan token otorisasi jika ada: 'Authorization': `Bearer ${token}`
     }
+};
 
-    // --- SEARCH & AUTOCOMPLETE LOGIC ---
-    function setupSearch(inputEl, sugEl, isCountryA) {
-        inputEl.addEventListener('input', (e) => {
-            const val = e.target.value.toLowerCase();
-            sugEl.innerHTML = '';
-            if (!val) {
-                sugEl.style.display = 'none';
-                return;
-            }
+const AppState = {
+    currentSearchTarget: null,
+    history: [],
+    bookmarks: [],
+    stats: { totalSearches: 0, totalBookmarks: 0 }
+};
 
-            const matches = countriesData.filter(c => 
-                c.name.toLowerCase().includes(val) || 
-                c.officialName.toLowerCase().includes(val)
-            );
+// 2. DOM ELEMENTS
+const DOM = {
+    searchInput: document.getElementById('search-input'),
+    inputTypeBadge: document.getElementById('input-type-badge'),
+    searchForm: document.getElementById('search-form'),
+    loadingState: document.getElementById('loading-state'),
+    resultContainer: document.getElementById('result-container'),
+    toastContainer: document.getElementById('toast-container'),
+    bookmarkBtn: document.getElementById('btn-bookmark'),
+    historyList: document.getElementById('history-list'),
+    bookmarkList: document.getElementById('bookmark-list')
+};
 
-            if (matches.length > 0) {
-                sugEl.style.display = 'block';
-                matches.forEach(match => {
-                    const div = document.createElement('div');
-                    div.innerHTML = `${match.flag} ${match.name}`;
-                    div.addEventListener('click', () => {
-                        inputEl.value = `${match.flag} ${match.name}`;
-                        if (isCountryA) countryA = match;
-                        else countryB = match;
-                        sugEl.style.display = 'none';
-                    });
-                    sugEl.appendChild(div);
-                });
-            } else {
-                sugEl.style.display = 'none';
-            }
-        });
-
-        // Hide suggestion when clicking outside
-        document.addEventListener('click', (e) => {
-            if (e.target !== inputEl) sugEl.style.display = 'none';
-        });
-    }
-
-    setupSearch(searchAInput, sugA, true);
-    setupSearch(searchBInput, sugB, false);
-
-    // --- RANDOM COMPARE ---
-    btnRandom.addEventListener('click', () => {
-        if(countriesData.length < 2) return;
-        const shuffled = [...countriesData].sort(() => 0.5 - Math.random());
-        countryA = shuffled[0];
-        countryB = shuffled[1];
-        searchAInput.value = `${countryA.flag} ${countryA.name}`;
-        searchBInput.value = `${countryB.flag} ${countryB.name}`;
-        processCompare();
-    });
-
-    // --- COMPARE BUTTON ---
-    btnCompare.addEventListener('click', () => {
-        if (!countryA || !countryB) {
-            alert('Silakan pilih kedua negara terlebih dahulu!');
-            return;
-        }
-        if (countryA.id === countryB.id) {
-            alert('Silakan pilih negara yang berbeda untuk dibandingkan.');
-            return;
-        }
-        processCompare();
-    });
-
-    btnReset.addEventListener('click', () => {
-        resultSection.classList.add('hidden');
-        heroSection.classList.remove('hidden');
-        window.scrollTo(0, 0);
-    });
-
-    // --- COMPARISON LOGIC ---
-    function processCompare() {
-        heroSection.classList.add('hidden');
-        loading.classList.remove('hidden');
-
-        // Simulate processing for UX
-        setTimeout(() => {
-            loading.classList.add('hidden');
-            renderComparison();
-            saveHistory();
-            resultSection.classList.remove('hidden');
-            resultSection.style.animation = 'fadeIn 0.8s ease';
-        }, 1000);
-    }
-
-    function renderComparison() {
-        compGrid.innerHTML = '';
-        let scoreA = 0;
-        let scoreB = 0;
-        let winA_cats = [];
-        let winB_cats = [];
-
-        // Build UI structure
-        const buildRow = (label, valA, valB, formatType, metricName = null, higherIsBetter = true) => {
-            let numA = parseFloat(valA) || 0;
-            let numB = parseFloat(valB) || 0;
-            let winner = 0; // 0 tie, 1 A wins, 2 B wins
-
-            if (metricName) {
-                if (numA > numB) winner = higherIsBetter ? 1 : 2;
-                else if (numB > numA) winner = higherIsBetter ? 2 : 1;
-                
-                if (winner === 1) { scoreA++; winA_cats.push(metricName); }
-                else if (winner === 2) { scoreB++; winB_cats.push(metricName); }
-            }
-
-            // Formatting
-            const fmtA = formatType === 'num' ? numA.toLocaleString() : valA;
-            const fmtB = formatType === 'num' ? numB.toLocaleString() : valB;
-
-            // Bar Chart Width
-            const maxVal = Math.max(numA, numB);
-            const pctA = maxVal === 0 ? 0 : (numA / maxVal) * 100;
-            const pctB = maxVal === 0 ? 0 : (numB / maxVal) * 100;
-
-            const row = document.createElement('div');
-            row.className = 'data-row glass-card';
-            row.innerHTML = `
-                <div class="val-a ${winner === 1 ? 'winner' : ''}">
-                    ${winner === 1 ? '🏆 ' : ''} <span class="counter" data-target="${numA}">${formatType === 'num' ? '0' : fmtA}</span> ${formatType === 'prefix' ? valA : ''}
-                    ${formatType === 'num' ? `<div class="bar-container"><div class="bar-fill" style="width: 0%" data-width="${pctA}%"></div></div>` : ''}
-                </div>
-                <div class="data-label">${label}</div>
-                <div class="val-b ${winner === 2 ? 'winner' : ''}">
-                    <span class="counter" data-target="${numB}">${formatType === 'num' ? '0' : fmtB}</span> ${winner === 2 ? ' 🏆' : ''} ${formatType === 'prefix' ? valB : ''}
-                    ${formatType === 'num' ? `<div class="bar-container"><div class="bar-fill" style="width: 0%" data-width="${pctB}%"></div></div>` : ''}
-                </div>
-            `;
-            compGrid.appendChild(row);
-        };
-
-        const buildCategory = (title) => {
-            const titleEl = document.createElement('div');
-            titleEl.className = 'category-title';
-            titleEl.innerText = title;
-            compGrid.appendChild(titleEl);
-        }
-
-        // Header Row (Flags)
-        const headerRow = document.createElement('div');
-        headerRow.className = 'data-row';
-        headerRow.style.background = 'transparent';
-        headerRow.style.border = 'none';
-        headerRow.innerHTML = `
-            <div class="val-a" style="font-size: 2rem;">${countryA.flag} <h2>${countryA.name}</h2></div>
-            <div class="data-label" style="font-size: 1.5rem;">VS</div>
-            <div class="val-b" style="font-size: 2rem;">${countryB.flag} <h2>${countryB.name}</h2></div>
-        `;
-        compGrid.appendChild(headerRow);
-
-        // General
-        buildCategory('General Information');
-        buildRow('Capital', countryA.capital, countryB.capital, 'text');
-        buildRow('Continent', countryA.continent, countryB.continent, 'text');
-        
-        // Economy
-        buildCategory('Economy & Demographics');
-        buildRow('Population', countryA.population, countryB.population, 'num', 'Populasi');
-        buildRow('Area (km²)', countryA.area, countryB.area, 'num', 'Luas Wilayah');
-        buildRow('GDP ($)', countryA.economy.gdp, countryB.economy.gdp, 'num', 'GDP (Ekonomi)');
-        buildRow('GDP Per Capita ($)', countryA.economy.gdpPerCapita, countryB.economy.gdpPerCapita, 'num', 'Kesejahteraan');
-
-        // Tech & Internet
-        buildCategory('Technology & Connectivity');
-        buildRow('Internet Users', countryA.technology.internetUsers, countryB.technology.internetUsers, 'num', 'Pengguna Internet');
-        buildRow('Internet Speed (Mbps)', countryA.technology.internetSpeed, countryB.technology.internetSpeed, 'num', 'Kecepatan Internet');
-
-        // Military
-        buildCategory('Military Power');
-        buildRow('Active Personnel', countryA.military.activePersonnel, countryB.military.activePersonnel, 'num', 'Personil Militer');
-        buildRow('Defense Budget ($)', countryA.military.defenseBudget, countryB.military.defenseBudget, 'num', 'Anggaran Militer');
-
-        // Animate Counters and Bars
-        animateData();
-
-        // Render Fun Facts
-        renderFunFacts();
-
-        // Generate Summary
-        generateSummary(scoreA, scoreB, winA_cats, winB_cats);
-    }
-
-    function animateData() {
-        const counters = document.querySelectorAll('.counter');
-        counters.forEach(counter => {
-            const target = +counter.getAttribute('data-target');
-            if(isNaN(target)) return;
-            const inc = target / 100;
-            let c = 0;
-            const updateCounter = () => {
-                c += inc;
-                if (c < target) {
-                    counter.innerText = Math.ceil(c).toLocaleString();
-                    requestAnimationFrame(updateCounter);
-                } else {
-                    counter.innerText = target.toLocaleString();
-                }
-            };
-            updateCounter();
-        });
-
-        // Animate Bars
-        setTimeout(() => {
-            const bars = document.querySelectorAll('.bar-fill');
-            bars.forEach(bar => {
-                bar.style.width = bar.getAttribute('data-width');
-            });
-        }, 300);
-    }
-
-    function generateSummary(scoreA, scoreB, winA, winB) {
-        const summaryEl = document.getElementById('auto-summary');
-        const winnerEl = document.getElementById('overall-winner');
-
-        let textA = winA.length > 0 ? `${countryA.name} unggul dalam: ${winA.slice(0, 3).join(', ')}.` : '';
-        let textB = winB.length > 0 ? `${countryB.name} memimpin di sektor: ${winB.slice(0, 3).join(', ')}.` : '';
-        
-        summaryEl.innerText = `${textA} ${textB}`;
-
-        if (scoreA > scoreB) {
-            winnerEl.innerHTML = `🌟 Pemenang Keseluruhan: <strong>${countryA.name}</strong>`;
-        } else if (scoreB > scoreA) {
-            winnerEl.innerHTML = `🌟 Pemenang Keseluruhan: <strong>${countryB.name}</strong>`;
-        } else {
-            winnerEl.innerHTML = `⚖️ Hasil Seimbang (Draw)`;
-        }
-    }
-
-    function renderFunFacts() {
-        const ffA = document.getElementById('fun-fact-a');
-        const ffB = document.getElementById('fun-fact-b');
-
-        const listA = countryA.funFacts.map(f => `<li>${f}</li>`).join('');
-        const listB = countryB.funFacts.map(f => `<li>${f}</li>`).join('');
-
-        ffA.innerHTML = `<h3>💡 Fakta Unik ${countryA.name}</h3><ul>${listA}</ul>`;
-        ffB.innerHTML = `<h3>💡 Fakta Unik ${countryB.name}</h3><ul>${listB}</ul>`;
-    }
-
-    // --- SHARE & EXPORT NATIVE API ---
-    document.getElementById('btn-share').addEventListener('click', async () => {
-        const shareData = {
-            title: `XAERISOFT | ${countryA.name} VS ${countryB.name}`,
-            text: `Lihat perbandingan antara ${countryA.name} dan ${countryB.name}! Pemenangnya adalah...`,
-            url: window.location.href
-        };
-        try {
-            if (navigator.share) {
-                await navigator.share(shareData);
-            } else {
-                alert('Browser Anda tidak mendukung Web Share API. Coba Export PDF.');
-            }
-        } catch (err) {
-            console.error(err);
-        }
-    });
-
-    // --- LOCAL STORAGE (HISTORY) ---
-    function saveHistory() {
-        let history = JSON.parse(localStorage.getItem('xs_history')) || [];
-        const entry = `${countryA.name} vs ${countryB.name}`;
-        if (!history.includes(entry)) {
-            history.unshift(entry);
-            if(history.length > 5) history.pop();
-            localStorage.setItem('xs_history', JSON.stringify(history));
-        }
-    }
-
-    document.getElementById('btn-history').addEventListener('click', () => {
-        const history = JSON.parse(localStorage.getItem('xs_history')) || [];
-        if (history.length === 0) {
-            alert('History kosong.');
-        } else {
-            alert('Riwayat Compare Terakhir:\n\n' + history.join('\n'));
-        }
-    });
-
-    document.getElementById('btn-favorite').addEventListener('click', () => {
-        alert('Fitur favorit dapat diakses setelah login (Data disimpan di LocalStorage).');
-    });
-
-    document.getElementById('btn-fav-current').addEventListener('click', () => {
-        alert(`Perbandingan ${countryA.name} vs ${countryB.name} ditambahkan ke Favorit! ⭐`);
-    });
+// 3. INITIALIZATION
+document.addEventListener('DOMContentLoaded', () => {
+    initEvents();
+    fetchInitialData();
 });
+
+function initEvents() {
+    DOM.searchInput.addEventListener('input', handleInputDetection);
+    DOM.searchForm.addEventListener('submit', handleSearch);
+    DOM.bookmarkBtn.addEventListener('click', toggleBookmark);
+}
+
+// ==========================================
+// API INTEGRATION (REAL FETCH CALLS)
+// ==========================================
+
+async function fetchInitialData() {
+    try {
+        // Fetch History
+        const historyRes = await fetch(`${CONFIG.API_BASE_URL}/history`, { headers: CONFIG.HEADERS });
+        if (historyRes.ok) {
+            AppState.history = await historyRes.json();
+            renderHistory();
+        }
+
+        // Fetch Bookmarks
+        const bookmarkRes = await fetch(`${CONFIG.API_BASE_URL}/bookmarks`, { headers: CONFIG.HEADERS });
+        if (bookmarkRes.ok) {
+            AppState.bookmarks = await bookmarkRes.json();
+            AppState.stats.totalBookmarks = AppState.bookmarks.length;
+            renderBookmarks();
+        }
+
+        // Fetch System Stats (Optional)
+        const statsRes = await fetch(`${CONFIG.API_BASE_URL}/stats`, { headers: CONFIG.HEADERS });
+        if (statsRes.ok) {
+            const statsData = await statsRes.json();
+            AppState.stats.totalSearches = statsData.totalSearches || 0;
+        }
+
+        renderStats();
+    } catch (error) {
+        console.error("Gagal memuat data awal:", error);
+        showToast("Error connecting to server.", "error");
+    }
+}
+
+async function handleSearch(e) {
+    e.preventDefault();
+    const query = DOM.searchInput.value.trim();
+    if (!query) return;
+
+    // UI State: Loading
+    DOM.resultContainer.classList.add('hidden');
+    DOM.loadingState.classList.remove('hidden');
+    showToast('Initializing secure lookup...', 'loading');
+
+    try {
+        // Call Backend Search API
+        const response = await fetch(`${CONFIG.API_BASE_URL}/search`, {
+            method: 'POST',
+            headers: CONFIG.HEADERS,
+            body: JSON.stringify({ query: query })
+        });
+
+        const result = await response.json();
+        DOM.loadingState.classList.add('hidden');
+
+        if (response.ok && result.data) {
+            AppState.currentSearchTarget = result.data;
+            renderSearchResult(result.data);
+            
+            // Perbarui history setelah pencarian sukses
+            fetchInitialData(); 
+            showToast('Target data decrypted successfully.', 'success');
+        } else {
+            showToast(result.message || 'Target not found in database.', 'warning');
+        }
+    } catch (error) {
+        DOM.loadingState.classList.add('hidden');
+        showToast('Server connection failed.', 'error');
+        console.error("Search error:", error);
+    }
+}
+
+async function toggleBookmark() {
+    if (!AppState.currentSearchTarget) return;
+    
+    const target = AppState.currentSearchTarget;
+    const isBookmarked = AppState.bookmarks.some(b => b.id === target.id);
+    const originalState = isBookmarked;
+
+    // Optimistic UI Update
+    DOM.bookmarkBtn.classList.toggle('active', !isBookmarked);
+
+    try {
+        if (isBookmarked) {
+            // Delete Bookmark API
+            const res = await fetch(`${CONFIG.API_BASE_URL}/bookmark/${target.id}`, {
+                method: 'DELETE',
+                headers: CONFIG.HEADERS
+            });
+            if (!res.ok) throw new Error('Gagal menghapus bookmark');
+            showToast('Target removed from bookmarks.', 'success');
+        } else {
+            // Add Bookmark API
+            const res = await fetch(`${CONFIG.API_BASE_URL}/bookmark`, {
+                method: 'POST',
+                headers: CONFIG.HEADERS,
+                body: JSON.stringify({ targetId: target.id })
+            });
+            if (!res.ok) throw new Error('Gagal menambah bookmark');
+            showToast('Target secured to bookmarks.', 'success');
+        }
+        // Refresh data dari server
+        fetchInitialData();
+    } catch (error) {
+        // Rollback UI jika gagal
+        DOM.bookmarkBtn.classList.toggle('active', originalState);
+        showToast(error.message, 'error');
+    }
+}
+
+// ==========================================
+// UI RENDERING & LOGIC
+// ==========================================
+
+function switchTab(tabId) {
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+    
+    document.getElementById(`${tabId}-section`).classList.add('active');
+    event.currentTarget.classList.add('active');
+
+    if(tabId === 'history') renderHistory();
+    if(tabId === 'bookmarks') renderBookmarks();
+}
+
+function handleInputDetection(e) {
+    const val = e.target.value.trim();
+    const badge = DOM.inputTypeBadge;
+    
+    if (val === '') {
+        badge.textContent = 'TEXT';
+        badge.style.color = 'var(--neon-blue)';
+        return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    const phoneRegex = /^[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}$/im;
+
+    if (emailRegex.test(val)) {
+        badge.textContent = 'EMAIL';
+        badge.style.color = 'var(--warning)';
+    } else if (phoneRegex.test(val) || /^[\d\+\-\s]+$/.test(val)) {
+        badge.textContent = 'PHONE';
+        badge.style.color = 'var(--success)';
+    } else {
+        badge.textContent = 'NAME';
+        badge.style.color = 'var(--neon-purple)';
+    }
+}
+
+function renderSearchResult(data) {
+    DOM.resultContainer.classList.remove('hidden');
+    
+    // Mapping Data dari Database
+    document.getElementById('res-avatar').src = data.avatar || 'default-avatar.png';
+    document.getElementById('res-name').textContent = data.name || 'Unknown';
+    document.getElementById('res-identifier').textContent = data.phone || data.email || 'N/A';
+    
+    const statusEl = document.getElementById('res-status');
+    statusEl.textContent = data.status || 'unknown';
+    statusEl.className = `status-indicator ${data.status || 'unknown'}`;
+
+    document.getElementById('res-email').textContent = data.email || 'N/A';
+    document.getElementById('res-provider').textContent = data.provider || 'N/A';
+    document.getElementById('res-country').textContent = data.country || 'N/A';
+    document.getElementById('res-timezone').textContent = data.timezone || 'N/A';
+    document.getElementById('res-updated').textContent = data.updated || 'N/A';
+
+    const isBookmarked = AppState.bookmarks.some(b => b.id === data.id);
+    DOM.bookmarkBtn.classList.toggle('active', isBookmarked);
+
+    const tagsContainer = document.getElementById('tags-container');
+    tagsContainer.innerHTML = '';
+    if (data.tags && Array.isArray(data.tags)) {
+        data.tags.forEach(tag => {
+            const span = document.createElement('span');
+            span.className = 'tag';
+            span.textContent = tag;
+            tagsContainer.appendChild(span);
+        });
+    }
+}
+
+function renderHistory() {
+    DOM.historyList.innerHTML = AppState.history.length ? '' : '<p style="color:var(--text-muted)">No search history found.</p>';
+    AppState.history.forEach(item => {
+        // Format tanggal sesuai struktur data backend Anda
+        DOM.historyList.innerHTML += `
+            <div class="list-item">
+                <div class="list-info">
+                    <h4>${item.keyword}</h4>
+                    <p>${new Date(item.createdAt).toLocaleString()} | Status: ${item.found ? 'Match' : 'Unverified'}</p>
+                </div>
+            </div>
+        `;
+    });
+}
+
+function renderBookmarks() {
+    DOM.bookmarkList.innerHTML = AppState.bookmarks.length ? '' : '<p style="color:var(--text-muted)">No bookmarks secured yet.</p>';
+    AppState.bookmarks.forEach(target => {
+        DOM.bookmarkList.innerHTML += `
+            <div class="list-item">
+                <div class="list-info">
+                    <h4>${target.name}</h4>
+                    <p>${target.phone || target.email} | ${target.country}</p>
+                </div>
+                <button class="cyber-btn-outline" onclick="loadBookmark('${target.id}')">View</button>
+            </div>
+        `;
+    });
+}
+
+window.loadBookmark = async function(id) {
+    const target = AppState.bookmarks.find(b => b.id === id);
+    if(target) {
+        switchTab('search');
+        AppState.currentSearchTarget = target;
+        DOM.searchInput.value = target.phone || target.name;
+        renderSearchResult(target);
+    }
+}
+
+// EXPORT MODULE (Tetap berjalan murni di Frontend)
+window.exportData = function(format) {
+    if (!AppState.currentSearchTarget) return showToast('No target data to export.', 'error');
+    
+    const data = AppState.currentSearchTarget;
+    let content = '';
+    let mimeType = '';
+
+    if (format === 'json') {
+        content = JSON.stringify(data, null, 2);
+        mimeType = 'application/json';
+    } else if (format === 'csv') {
+        const headers = Object.keys(data).join(',');
+        const values = Object.values(data).map(v => typeof v === 'object' ? `"${JSON.stringify(v)}"` : `"${v}"`).join(',');
+        content = `${headers}\n${values}`;
+        mimeType = 'text/csv';
+    } else if (format === 'txt') {
+        content = `XAERISOFT CONTACT LOOKUP\n==========================\n`;
+        for (const [key, value] of Object.entries(data)) {
+            content += `${key.toUpperCase()}: ${typeof value === 'object' ? JSON.stringify(value) : value}\n`;
+        }
+        mimeType = 'text/plain';
+    }
+
+    const blob = new Blob([content], { type: mimeType });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `xaerisoft_target_${data.id || 'export'}.${format}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    
+    showToast(`Data exported as ${format.toUpperCase()}`, 'success');
+}
+
+function showToast(message, type = 'success') {
+    const toast = document.createElement('div');
+    toast.className = `toast ${type}`;
+    toast.textContent = message;
+    DOM.toastContainer.appendChild(toast);
+    setTimeout(() => toast.remove(), 3000);
+}
+
+function renderStats() {
+    document.getElementById('stat-searches').textContent = AppState.stats.totalSearches.toLocaleString();
+    document.getElementById('stat-bookmarks').textContent = AppState.stats.totalBookmarks.toLocaleString();
+}

@@ -1,137 +1,162 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XAERISOFT | Universe Country Compare</title>
-    <!-- Premium Fonts: Plus Jakarta Sans for UI, Space Grotesk for Data/Numbers -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Phosphor Icons for Modern Outlined Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <title>Xaerisoft Contact Lookup | Premium Data Intelligence</title>
     <link rel="stylesheet" href="style.css">
+    <!-- Google Fonts untuk tipografi modern dan cyber -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <!-- 🌌 Dynamic Universe Background -->
-    <div class="universe-bg">
-        <div class="stars"></div>
-        <div class="twinkling-stars"></div>
-        <div class="aurora-blob blob-1"></div>
-        <div class="aurora-blob blob-2"></div>
-        <div class="aurora-blob blob-3"></div>
-        <div class="grid-overlay"></div>
+    <!-- Background Effects -->
+    <div class="universe-bg"></div>
+    <div class="aurora-glow aurora-1"></div>
+    <div class="aurora-glow aurora-2"></div>
+
+    <div class="app-container">
+        <!-- SIDEBAR -->
+        <aside class="sidebar glass-panel">
+            <div class="brand">
+                <div class="brand-logo">X</div>
+                <h1>XAERISOFT</h1>
+            </div>
+
+            <!-- Profile Card -->
+            <div class="profile-card glow-border">
+                <img src="https://i.pravatar.cc/150?img=11" alt="Avatar" class="avatar">
+                <div class="profile-info">
+                    <h3>System Admin</h3>
+                    <p>@xaeri_root</p>
+                    <div class="status-badge online"><span></span>Secured</div>
+                </div>
+            </div>
+
+            <!-- Statistics -->
+            <div class="statistics-section">
+                <h4>System Analytics</h4>
+                <div class="stat-grid">
+                    <div class="stat-box">
+                        <span class="stat-value" id="stat-searches">1,204</span>
+                        <span class="stat-label">Total Search</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-value" id="stat-bookmarks">42</span>
+                        <span class="stat-label">Bookmarks</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation / Quick Actions -->
+            <nav class="sidebar-nav">
+                <button class="nav-btn active" onclick="switchTab('search')">Search Hub</button>
+                <button class="nav-btn" onclick="switchTab('history')">Search History</button>
+                <button class="nav-btn" onclick="switchTab('bookmarks')">My Bookmarks</button>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <main class="main-content">
+            <!-- Search Hub Section -->
+            <section id="search-section" class="tab-content active">
+                <div class="search-header glass-panel">
+                    <h2>Target Intelligence Lookup</h2>
+                    <p>Auto-detects Name, Phone Number, or Email address.</p>
+                    
+                    <form id="search-form" class="search-form">
+                        <div class="input-wrapper glow-border">
+                            <input type="text" id="search-input" placeholder="Enter target identifier..." autocomplete="off" required>
+                            <span class="input-type-badge" id="input-type-badge">TEXT</span>
+                        </div>
+                        <button type="submit" class="cyber-btn">INITIALIZE</button>
+                    </form>
+                </div>
+
+                <!-- Loading State -->
+                <div id="loading-state" class="loading-skeleton hidden">
+                    <div class="pulse-circle"></div>
+                    <p>Decrypting target data...</p>
+                </div>
+
+                <!-- Result Container (Hidden by default) -->
+                <div id="result-container" class="result-container hidden">
+                    <!-- Main Card -->
+                    <div class="result-card glass-panel glow-border">
+                        <div class="card-header">
+                            <img src="" id="res-avatar" class="res-avatar" alt="Target">
+                            <div class="res-main-info">
+                                <h2 id="res-name">Target Name</h2>
+                                <h3 id="res-identifier">+000 000 0000</h3>
+                                <span id="res-status" class="status-indicator"></span>
+                            </div>
+                            <button id="btn-bookmark" class="icon-btn" title="Bookmark Target">★</button>
+                        </div>
+                        
+                        <!-- Contact Information Grid -->
+                        <div class="info-grid">
+                            <div class="info-item">
+                                <span class="label">Email</span>
+                                <span class="value" id="res-email">Loading...</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Provider / Operator</span>
+                                <span class="value" id="res-provider">Loading...</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Country</span>
+                                <span class="value" id="res-country">Loading...</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Timezone</span>
+                                <span class="value" id="res-timezone">Loading...</span>
+                            </div>
+                            <div class="info-item">
+                                <span class="label">Last Update</span>
+                                <span class="value" id="res-updated">Loading...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tags Section -->
+                    <div class="tags-section glass-panel">
+                        <h3>Associated Intelligence Tags</h3>
+                        <div id="tags-container" class="tags-container">
+                            <!-- Tags will be injected here via JS -->
+                        </div>
+                    </div>
+
+                    <!-- Export Section -->
+                    <div class="export-section glass-panel">
+                        <h3>Export Target Data</h3>
+                        <div class="export-buttons">
+                            <button class="cyber-btn-outline" onclick="exportData('csv')">CSV</button>
+                            <button class="cyber-btn-outline" onclick="exportData('json')">JSON</button>
+                            <button class="cyber-btn-outline" onclick="exportData('txt')">TXT</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- History Section -->
+            <section id="history-section" class="tab-content glass-panel">
+                <h2>Search History</h2>
+                <div id="history-list" class="data-list">
+                    <!-- History items injected by JS -->
+                </div>
+            </section>
+
+            <!-- Bookmarks Section -->
+            <section id="bookmarks-section" class="tab-content glass-panel">
+                <h2>Secured Bookmarks</h2>
+                <div id="bookmark-list" class="data-list">
+                    <!-- Bookmark items injected by JS -->
+                </div>
+            </section>
+        </main>
     </div>
 
-    <!-- 🌟 Premium Transparent Navbar -->
-    <nav class="glass-nav">
-        <div class="logo">
-            <i class="ph-fill ph-planet"></i>
-            <span class="logo-text">XAERISOFT</span>
-        </div>
-        <!-- Bagian nav-actions (History & Favorites) telah dihapus -->
-    </nav>
-
-    <main class="container">
-        <!-- 🚀 Hero & Search Section -->
-        <section class="hero-section" id="hero-section">
-            <div class="badge-pill pulse-glow">
-                <i class="ph-fill ph-sparkle"></i> xaerisoft AI
-            </div>
-            <h1 class="hero-title">Country <span class="gradient-text">Compare</span></h1>
-            <p class="hero-subtitle">Menganalisis metrik negara secara real-time dengan presisi dashboard</p>
-            
-            <div class="search-container">
-                <div class="search-box glass-card interactive-card">
-                    <label><i class="ph ph-flag"></i> Perbandingan Negara 1</label>
-                    <div class="input-wrapper">
-                        <i class="ph ph-magnifying-glass search-icon"></i>
-                        <input type="text" id="search-a" placeholder="E.g. " autocomplete="off">
-                    </div>
-                    <div class="suggestion-list" id="sug-a"></div>
-                </div>
-                
-                <div class="vs-badge">
-                    <div class="vs-ring">VS</div>
-                </div>
-                
-                <div class="search-box glass-card interactive-card">
-                    <label><i class="ph ph-flag"></i> Perbandingan Negara 2</label>
-                    <div class="input-wrapper">
-                        <i class="ph ph-magnifying-glass search-icon"></i>
-                        <input type="text" id="search-b" placeholder="E.g. " autocomplete="off">
-                    </div>
-                    <div class="suggestion-list" id="sug-b"></div>
-                </div>
-            </div>
-
-            <div class="action-buttons">
-                <button class="btn-primary" id="btn-compare">
-                    <i class="ph ph-chart-line-up"></i> Analisis Data
-                </button>
-                <button class="btn-secondary" id="btn-random">
-                    <i class="ph ph-shuffle"></i> Acak Perbandingan
-                </button>
-            </div>
-        </section>
-
-        <!-- ⏳ High-Tech Loading Skeleton -->
-        <div id="loading" class="hidden loading-container">
-            <div class="ai-scanner">
-                <div class="scanner-line"></div>
-            </div>
-            <div class="loader-pulse"></div>
-            <p class="gradient-text">Mesintesis Metrik Global...</p>
-        </div>
-
-        <!-- 📊 Dashboard Result Section -->
-        <section id="result-section" class="hidden dashboard-section">
-            
-            <!-- Quick Actions Toolbar -->
-            <div class="actions-bar glass-card">
-                <div class="action-group">
-                    <button class="icon-btn tooltip" onclick="window.print()" data-title="Export PDF">
-                        <i class="ph ph-printer"></i>
-                    </button>
-                    <button id="btn-share" class="icon-btn tooltip" data-title="Share Result">
-                        <i class="ph ph-share-network"></i>
-                    </button>
-                    <!-- Tombol Add to Favorites telah dihapus -->
-                </div>
-                <button id="btn-reset" class="btn-secondary small-btn">
-                    <i class="ph ph-arrow-left"></i> Buat Perbandingan Baru
-                </button>
-            </div>
-
-            <!-- 🤖 AI Insight Premium Card -->
-            <div class="summary-card glass-card animated-border">
-                <div class="ai-header">
-                    <div class="ai-icon-box pulse-glow">
-                        <i class="ph-fill ph-robot"></i>
-                    </div>
-                    <h3>Hasil Analisa AI</h3>
-                </div>
-                <p id="auto-summary" class="ai-text"></p>
-                <div class="winner-reveal">
-                    <h4 id="overall-winner" class="overall-winner"></h4>
-                </div>
-            </div>
-
-            <!-- 📈 The Comparison Grid (Data Injected via JS) -->
-            <div id="comparison-grid" class="comparison-grid">
-                <!-- Data will be injected here via JS -->
-            </div>
-
-            <!-- 💡 Fun Facts Cards -->
-            <div class="fun-facts-container">
-                <div class="fun-fact-card glass-card" id="fun-fact-a"></div>
-                <div class="fun-fact-card glass-card" id="fun-fact-b"></div>
-            </div>
-
-        </section>
-    </main>
-   <!-- 👨‍💻 Footer Copyright -->
-    <footer style="text-align: center; padding: 2rem; margin-top: 2rem; color: var(--text-muted); font-size: 0.95rem; z-index: 10; position: relative;">
-        <p>&copy; 2026 xaerisoft Created by <span class="gradient-text" style="font-weight: 800; letter-spacing: 1px;">Wilxd</span>.</p>
-    </footer>
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="toast-container"></div>
 
     <script src="script.js"></script>
 </body>
