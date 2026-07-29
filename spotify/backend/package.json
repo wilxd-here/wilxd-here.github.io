@@ -1,1 +1,18 @@
-
+{
+  "name": "xaerisoft-downloader-engine",
+  "version": "1.0.0",
+  "description": "Backend engine for Xaerisoft Spotify Downloader",
+  "main": "spotify-download.js",
+  "type": "module",
+  "scripts": {
+    "start": "node spotify-download.js",
+    "dev": "node --watch spotify-download.js"
+  },
+  "author": "Xaerisoft",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "got-scraping": "^4.0.0"
+  }
+}
