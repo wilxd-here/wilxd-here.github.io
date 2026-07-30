@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xaerisoft Downloader | Premium Quality</title>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="bg-elements">
+        <div class="noise-overlay"></div>
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <div class="brand">
+            <i data-lucide="hexagon" class="brand-icon"></i>
+            <span>Xaerisoft</span>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-icon"><i data-lucide="globe"></i></button>
+            <button class="btn-icon"><i data-lucide="moon"></i></button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Hero Section -->
+        <header class="hero">
+            <h1>Unduh <span class="text-gradient">Audio</span> Premium.<br>Gratis & Instan.</h1>
+            <p>Tempel link tautan audio favoritmu. Dapatkan format kualitas tinggi dalam hitungan detik — tanpa daftar, kecepatan maksimal.</p>
+        </header>
+
+        <!-- Main Downloader Card -->
+        <div class="downloader-card glass-panel">
+            
+            <!-- Category Tabs -->
+            <div class="tabs-container">
+                <button class="tab-btn active" data-type="track">
+                    <i data-lucide="music"></i> Lagu
+                </button>
+                <button class="tab-btn" data-type="playlist">
+                    <i data-lucide="list-music"></i> Playlist
+                </button>
+                <button class="tab-btn" data-type="album">
+                    <i data-lucide="disc"></i> Album
+                </button>
+                <button class="tab-btn" data-type="artist">
+                    <i data-lucide="user"></i> Artis
+                </button>
+            </div>
+
+            <!-- Format Selector -->
+            <div class="format-selector">
+                <span class="format-label">FORMAT</span>
+                <div class="format-options">
+                    <button class="format-btn active" data-format="m4a">
+                        M4A <span class="badge">KUALITAS TINGGI</span>
+                    </button>
+                    <button class="format-btn" data-format="mp3">MP3</button>
+                    <button class="format-btn" data-format="flac">FLAC</button>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-group">
+                <input type="text" id="url-input" placeholder="Tempel link lagu di sini..." autocomplete="off">
+                <button id="btn-paste" class="btn-paste">Tempel</button>
+            </div>
+
+            <!-- Action Button -->
+            <button id="btn-start" class="btn-primary">
+                <i data-lucide="download"></i> Mulai
+            </button>
+
+            <!-- Feature Checklist -->
+            <div class="features-list">
+                <span><i data-lucide="check-circle-2"></i> Tanpa daftar</span>
+                <span><i data-lucide="check-circle-2"></i> 100% gratis, tak terbatas</span>
+                <span><i data-lucide="check-circle-2"></i> Kualitas studio murni</span>
+            </div>
+        </div>
+
+        <!-- Result / Progress Area (Hidden Default) -->
+        <div id="result-area" class="result-area glass-panel hidden">
+            <!-- Akan diisi oleh JavaScript saat proses berjalan -->
+        </div>
+    </main>
+
+    <script src="script.js"></script>
+</body>
+</html>
