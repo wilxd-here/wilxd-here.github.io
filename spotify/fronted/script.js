@@ -1,190 +1,107 @@
-/**
- * XAERISOFT SPOTIFY DOWNLOADER - Frontend Logic
- * Architecture: Clean, Modular, Client-API Interaction
- */
+document.addEventListener('DOMContentLoaded', () => {
+    lucide.createIcons();
 
-class UIController {
-    constructor() {
-        this.initIcons();
-        this.bindElements();
-        this.attachEvents();
-        this.simulateLoadingScreen();
-    }
+    // DOM Elements
+    const tabs = document.querySelectorAll('.tab-btn');
+    const formatBtns = document.querySelectorAll('.format-btn');
+    const inputUrl = document.getElementById('url-input');
+    const btnPaste = document.getElementById('btn-paste');
+    const btnStart = document.getElementById('btn-start');
+    const resultArea = document.getElementById('result-area');
 
-    initIcons() {
-        lucide.createIcons();
-    }
+    let currentFormat = 'm4a';
 
-    bindElements() {
-        this.input = document.getElementById('url-input');
-        this.btnFetch = document.getElementById('btn-fetch');
-        this.btnDownload = document.getElementById('btn-download');
-        this.resultCard = document.getElementById('result-card');
-        
-        // Track Elements
-        this.elCover = document.getElementById('track-cover');
-        this.elTitle = document.getElementById('track-title');
-        this.elArtist = document.getElementById('track-artist');
-        this.elAlbum = document.getElementById('track-album');
-        
-        // Progress Elements
-        this.progressContainer = document.getElementById('dl-progress-container');
-        this.progressFill = document.getElementById('dl-progress-fill');
-        this.progressStatus = document.getElementById('dl-status');
-        this.progressPercent = document.getElementById('dl-percent');
-        
-        // Player Elements
-        this.playerCover = document.getElementById('player-cover');
-        this.playerTitle = document.getElementById('player-title');
-        this.playerArtist = document.getElementById('player-artist');
-    }
-
-    attachEvents() {
-        this.btnFetch.addEventListener('click', () => this.handleFetch());
-        this.input.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') this.handleFetch();
+    // 1. Tab Switching Logic
+    tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+            tabs.forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+            inputUrl.placeholder = `Tempel link ${tab.dataset.type} di sini...`;
         });
-        this.btnDownload.addEventListener('click', () => this.handleDownload());
-    }
+    });
 
-    simulateLoadingScreen() {
-        let progress = 0;
-        const bar = document.getElementById('init-progress');
-        const overlay = document.getElementById('loading-screen');
-        
-        const interval = setInterval(() => {
-            progress += Math.random() * 20;
-            if (progress >= 100) {
-                progress = 100;
-                clearInterval(interval);
-                setTimeout(() => {
-                    overlay.style.opacity = '0';
-                    setTimeout(() => overlay.remove(), 800);
-                }, 500);
-            }
-            bar.style.width = `${progress}%`;
-        }, 150);
-    }
+    // 2. Format Selection Logic
+    formatBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            formatBtns.forEach(b => {
+                b.classList.remove('active');
+                b.style.color = 'var(--text-primary)';
+            });
+            btn.classList.add('active');
+            btn.style.color = '#000'; // Make text black on active green background
+            currentFormat = btn.dataset.format;
+        });
+    });
 
-    async handleFetch() {
-        const url = this.input.value.trim();
-        if (!url) return;
-
-        // Reset UI & Show Loading State
-        this.btnFetch.classList.add('disabled');
-        this.btnFetch.innerHTML = `<i data-lucide="loader" class="spin"></i>`;
-        lucide.createIcons();
-        this.resultCard.classList.remove('hidden');
-        this.resultCard.style.opacity = "0.5";
-
+    // 3. Paste Button Logic (Clipboard API)
+    btnPaste.addEventListener('click', async () => {
         try {
-            // Call Backend API Wrapper (Localhost:3000 as defined in backend architecture)
-            const response = await fetch(`http://localhost:3000/api/info?url=${encodeURIComponent(url)}`);
-            const data = await response.json();
-
-            if(data.error) throw new Error(data.error);
-
-            this.currentTrackData = data.post;
-            this.updateUI(data.post);
-        } catch (error) {
-            console.error("Fetch Error:", error);
-            alert("Failed to fetch track information. Ensure backend engine is running.");
-        } finally {
-            this.btnFetch.classList.remove('disabled');
-            this.btnFetch.innerHTML = `<i data-lucide="search"></i>`;
-            lucide.createIcons();
-            this.resultCard.style.opacity = "1";
+            const text = await navigator.clipboard.readText();
+            inputUrl.value = text;
+        } catch (err) {
+            alert('Gagal mengakses clipboard. Silakan tempel secara manual.');
         }
-    }
+    });
 
-    updateUI(trackData) {
-        const title = trackData.name || trackData.tracks?.[0]?.name || "Unknown Track";
-        const artist = trackData.artist || "Unknown Artist";
-        const coverUrl = trackData.image || trackData.cover || "https://via.placeholder.com/250x250/111315/1ED760?text=NO+COVER";
+    // 4. Start Download Logic
+    btnStart.addEventListener('click', async () => {
+        const url = inputUrl.value.trim();
+        if (!url) {
+            alert('Mohon masukkan URL terlebih dahulu!');
+            return;
+        }
 
-        // Update Card Info
-        this.elTitle.textContent = title;
-        this.elArtist.textContent = artist;
-        this.elAlbum.innerHTML = `<i data-lucide="disc"></i> ${trackData.album || "Single"}`;
-        
-        this.elCover.src = coverUrl;
-        this.elCover.classList.remove('hidden');
-        document.querySelector('.cover-skeleton').classList.add('hidden');
-
-        // Update Bottom Player UI
-        this.playerTitle.textContent = title;
-        this.playerArtist.textContent = artist;
-        this.playerCover.src = coverUrl;
-
-        // Enable Download Button
-        this.btnDownload.classList.remove('disabled');
+        // Setup Loading State
+        const originalBtnHtml = btnStart.innerHTML;
+        btnStart.innerHTML = `<i data-lucide="loader" class="spin"></i> Memproses...`;
+        btnStart.style.pointerEvents = 'none';
         lucide.createIcons();
-    }
-
-    async handleDownload() {
-        const url = this.input.value.trim();
-        if (!url) return;
-
-        this.btnDownload.classList.add('hidden');
-        this.progressContainer.classList.remove('hidden');
         
-        // Simulating Polling Progress for UI smoothness (Real polling happens in Engine)
-        this.simulateProgress();
+        resultArea.classList.remove('hidden');
+        resultArea.innerHTML = `<p style="color: var(--accent-primary);">Menginisialisasi Engine Xaerisoft...</p>`;
 
         try {
-            const response = await fetch('http://localhost:3000/api/download', {
+            // Memanggil API Node.js/Express kamu (Pastikan server backend jalan di port 3000)
+            const response = await fetch('/api/download', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url, format: 'm4a' })
+                body: JSON.stringify({ url: url, format: currentFormat })
             });
 
-            const result = await response.json();
-            
-            if (result.success && result.downloadLink) {
-                this.progressFill.style.width = '100%';
-                this.progressPercent.textContent = '100%';
-                this.progressStatus.textContent = 'Complete!';
-                
-                // Trigger Download
-                window.open(result.downloadLink, '_blank');
-                
-                setTimeout(() => {
-                    this.resetDownloadUI();
-                }, 3000);
+            const data = await response.json();
+
+            if (data.success && data.downloadLink) {
+                // Tampilkan sukses di area hasil
+                resultArea.innerHTML = `
+                    <div style="color: #1ED760; margin-bottom: 15px;">
+                        <i data-lucide="check-circle" style="width: 48px; height: 48px;"></i>
+                    </div>
+                    <h3 class="result-title">Konversi Berhasil!</h3>
+                    <p class="result-artist" style="margin-bottom: 15px;">File siap diunduh.</p>
+                    <a href="${data.downloadLink}" target="_blank" class="btn-primary" style="text-decoration: none;">
+                        <i data-lucide="download-cloud"></i> Unduh File Sekarang
+                    </a>
+                `;
+                lucide.createIcons();
             } else {
-                throw new Error("Download Failed in Engine");
+                throw new Error("Gagal memproses tautan.");
             }
+
         } catch (error) {
             console.error(error);
-            this.progressStatus.textContent = 'Error processing request.';
-            this.progressStatus.style.color = '#ff4d4d';
-            setTimeout(() => this.resetDownloadUI(), 3000);
+            resultArea.innerHTML = `
+                <div style="color: #ff4d4d; margin-bottom: 15px;">
+                    <i data-lucide="x-circle" style="width: 48px; height: 48px;"></i>
+                </div>
+                <h3 class="result-title" style="color: #ff4d4d;">Terjadi Kesalahan</h3>
+                <p class="result-artist">Silakan periksa tautan atau coba beberapa saat lagi.</p>
+            `;
+            lucide.createIcons();
+        } finally {
+            // Restore Button
+            btnStart.innerHTML = originalBtnHtml;
+            btnStart.style.pointerEvents = 'auto';
+            lucide.createIcons();
         }
-    }
-
-    simulateProgress() {
-        let p = 0;
-        this.progressStatus.style.color = 'var(--accent-glow)';
-        this.progressInterval = setInterval(() => {
-            if (p < 85) p += Math.random() * 5; // Hangs at 85% waiting for backend
-            this.progressFill.style.width = `${p}%`;
-            this.progressPercent.textContent = `${Math.floor(p)}%`;
-            
-            if(p < 30) this.progressStatus.textContent = 'Requesting server...';
-            else if(p < 60) this.progressStatus.textContent = 'Converting track...';
-            else this.progressStatus.textContent = 'Finalizing...';
-        }, 800);
-    }
-
-    resetDownloadUI() {
-        clearInterval(this.progressInterval);
-        this.progressContainer.classList.add('hidden');
-        this.btnDownload.classList.remove('hidden');
-        this.progressFill.style.width = '0%';
-    }
-}
-
-// Initialize Application
-document.addEventListener('DOMContentLoaded', () => {
-    new UIController();
+    });
 });

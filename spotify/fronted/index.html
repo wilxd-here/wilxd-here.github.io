@@ -1,135 +1,96 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Xaerisoft Downloader | Premium Experience</title>
+    <title>Xaerisoft Downloader | Premium Quality</title>
     <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest"></script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <!-- Premium Loading Screen -->
-    <div id="loading-screen" class="loading-overlay">
-        <div class="loader-content">
-            <h1 class="brand-glow">XAERISOFT</h1>
-            <div class="progress-bar-container">
-                <div class="progress-bar" id="init-progress"></div>
-            </div>
-            <p>Initializing Engine...</p>
-        </div>
-    </div>
-
-    <!-- Background Elements -->
+    <!-- Background Effects -->
     <div class="bg-elements">
         <div class="noise-overlay"></div>
         <div class="blob blob-1"></div>
         <div class="blob blob-2"></div>
     </div>
 
-    <!-- Main Application Layout -->
-    <div class="app-container">
-        
-        <!-- Sidebar -->
-        <aside class="sidebar glass-panel">
-            <div class="brand">
-                <i data-lucide="hexagon" class="brand-icon"></i>
-                <h2>XAERISOFT</h2>
-            </div>
+    <!-- Navigation -->
+    <nav class="top-nav">
+        <div class="brand">
+            <i data-lucide="hexagon" class="brand-icon"></i>
+            <span>Xaerisoft</span>
+        </div>
+        <div class="nav-actions">
+            <button class="btn-icon"><i data-lucide="globe"></i></button>
+            <button class="btn-icon"><i data-lucide="moon"></i></button>
+        </div>
+    </nav>
+
+    <!-- Main Container -->
+    <main class="container">
+        <!-- Hero Section -->
+        <header class="hero">
+            <h1>Unduh <span class="text-gradient">Audio</span> Premium.<br>Gratis & Instan.</h1>
+            <p>Tempel link tautan audio favoritmu. Dapatkan format kualitas tinggi dalam hitungan detik — tanpa daftar, kecepatan maksimal.</p>
+        </header>
+
+        <!-- Main Downloader Card -->
+        <div class="downloader-card glass-panel">
             
-            <nav class="nav-menu">
-                <a href="#" class="nav-item active"><i data-lucide="download-cloud"></i> Downloader</a>
-                <a href="#" class="nav-item"><i data-lucide="clock"></i> History</a>
-                <a href="#" class="nav-item"><i data-lucide="bookmark"></i> Bookmarks</a>
-                <a href="#" class="nav-item"><i data-lucide="heart"></i> Favorites</a>
-            </nav>
-        </aside>
+            <!-- Category Tabs -->
+            <div class="tabs-container">
+                <button class="tab-btn active" data-type="track">
+                    <i data-lucide="music"></i> Lagu
+                </button>
+                <button class="tab-btn" data-type="playlist">
+                    <i data-lucide="list-music"></i> Playlist
+                </button>
+                <button class="tab-btn" data-type="album">
+                    <i data-lucide="disc"></i> Album
+                </button>
+                <button class="tab-btn" data-type="artist">
+                    <i data-lucide="user"></i> Artis
+                </button>
+            </div>
 
-        <!-- Main Content -->
-        <main class="main-content">
-            <header class="top-bar">
-                <div class="search-container glass-panel">
-                    <i data-lucide="link" class="search-icon"></i>
-                    <input type="text" id="url-input" placeholder="Paste track, album, or playlist URL here..." autocomplete="off">
-                    <button id="btn-fetch" class="btn-primary">
-                        <i data-lucide="search"></i>
+            <!-- Format Selector -->
+            <div class="format-selector">
+                <span class="format-label">FORMAT</span>
+                <div class="format-options">
+                    <button class="format-btn active" data-format="m4a">
+                        M4A <span class="badge">KUALITAS TINGGI</span>
                     </button>
+                    <button class="format-btn" data-format="mp3">MP3</button>
+                    <button class="format-btn" data-format="flac">FLAC</button>
                 </div>
-            </header>
+            </div>
 
-            <section class="content-area">
-                <!-- Result Card (Hidden by default) -->
-                <div id="result-card" class="result-card glass-panel hidden">
-                    <div class="cover-wrapper">
-                        <div class="skeleton-box cover-skeleton"></div>
-                        <img id="track-cover" src="" alt="Album Cover" class="hidden">
-                        <div class="quality-badge">Premium Quality</div>
-                    </div>
-                    
-                    <div class="track-info">
-                        <p class="tag" id="track-type">TRACK</p>
-                        <h2 id="track-title" class="text-glow">Waiting for input...</h2>
-                        <h3 id="track-artist">Artist Name</h3>
-                        
-                        <div class="meta-data">
-                            <span id="track-album"><i data-lucide="disc"></i> Album Name</span>
-                            <span id="track-date"><i data-lucide="calendar"></i> 2024</span>
-                            <span id="track-duration"><i data-lucide="clock"></i> 0:00</span>
-                        </div>
+            <!-- Input Area -->
+            <div class="input-group">
+                <input type="text" id="url-input" placeholder="Tempel link lagu di sini..." autocomplete="off">
+                <button id="btn-paste" class="btn-paste">Tempel</button>
+            </div>
 
-                        <div class="download-section">
-                            <div class="progress-container hidden" id="dl-progress-container">
-                                <div class="progress-info">
-                                    <span id="dl-status">Downloading...</span>
-                                    <span id="dl-percent">0%</span>
-                                </div>
-                                <div class="progress-bar-bg">
-                                    <div class="progress-bar-fill" id="dl-progress-fill"></div>
-                                </div>
-                            </div>
-                            
-                            <button id="btn-download" class="btn-primary btn-large disabled">
-                                <i data-lucide="download"></i> Download Track
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
+            <!-- Action Button -->
+            <button id="btn-start" class="btn-primary">
+                <i data-lucide="download"></i> Mulai
+            </button>
 
-    <!-- Bottom Player -->
-    <div class="bottom-player glass-panel">
-        <div class="player-info">
-            <img id="player-cover" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=" alt="Cover" class="player-cover">
-            <div class="player-text">
-                <h4 id="player-title">No track selected</h4>
-                <p id="player-artist">-</p>
+            <!-- Feature Checklist -->
+            <div class="features-list">
+                <span><i data-lucide="check-circle-2"></i> Tanpa daftar</span>
+                <span><i data-lucide="check-circle-2"></i> 100% gratis, tak terbatas</span>
+                <span><i data-lucide="check-circle-2"></i> Kualitas studio murni</span>
             </div>
         </div>
-        
-        <div class="player-controls">
-            <div class="control-buttons">
-                <button class="btn-icon"><i data-lucide="skip-back"></i></button>
-                <button class="btn-icon btn-play"><i data-lucide="play"></i></button>
-                <button class="btn-icon"><i data-lucide="skip-forward"></i></button>
-            </div>
-            <div class="seek-bar-container">
-                <span class="time">0:00</span>
-                <div class="seek-bar">
-                    <div class="seek-fill"></div>
-                </div>
-                <span class="time">0:00</span>
-            </div>
+
+        <!-- Result / Progress Area (Hidden Default) -->
+        <div id="result-area" class="result-area glass-panel hidden">
+            <!-- Akan diisi oleh JavaScript saat proses berjalan -->
         </div>
-        
-        <div class="player-volume">
-            <i data-lucide="volume-2"></i>
-            <div class="volume-bar">
-                <div class="volume-fill"></div>
-            </div>
-        </div>
-    </div>
+    </main>
 
     <script src="script.js"></script>
 </body>
