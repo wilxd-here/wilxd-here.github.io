@@ -1,13 +1,5 @@
-/**
- * Name Scrape: SpotyLoaderDl
- * Type: ESM
- * Credits By Zx 
- * Note: Kalau Mau Di Share Minimal sumber gak di hapus 😹
- * 
- * Website Downloader: savenest.web.id
- *
-**/
-
+import express from 'express';
+import cors from 'cors';
 import { gotScraping } from 'got-scraping';
 
 class SpotyLoaderDl {
@@ -17,13 +9,12 @@ class SpotyLoaderDl {
 
   async request(endpoint, options = {}) {
     let attempts = 0;
-    
     while (attempts < 3) {
       try {
         const response = await gotScraping({
           url: endpoint,
           method: options.method || 'GET',
-          json: options.body, // Jika POST, ini otomatis mengatur Content-Type ke application/json
+          json: options.body,
           responseType: 'json',
           headerGeneratorOptions: {
             browsers: [{ name: 'chrome', minVersion: 120 }],
@@ -31,22 +22,18 @@ class SpotyLoaderDl {
             locales: ['id-ID', 'en-US']
           }
         });
-        
         return response.body;
       } catch (error) {
         const statusCode = error.response?.statusCode;
-        
         if (statusCode === 429) {
           attempts++;
           console.log('\n[ Limit 429 ] Melewati batas request. Menunggu 60 detik...');
           await new Promise(resolve => setTimeout(resolve, 61000));
           continue;
         }
-        
         throw new Error(`[${statusCode || 'NETWORK_ERROR'}] ${error.message}`);
       }
     }
-    
     throw new Error('Gagal: Server masih menolak setelah beberapa kali percobaan.');
   }
 
@@ -68,29 +55,15 @@ class SpotyLoaderDl {
     return await this.request(endpoint, { method: 'GET' });
   }
   
-   /**
-   * @param {string} url - URL Spotify
-   * @param {string} format - Format audio (m4a, mp3, flac)
-   */
   async download(url, format = 'm4a', pollInterval = 4000) {
     try {
-      console.log('1. Mengambil informasi lagu...');
-      await new Promise(r => setTimeout(r, Math.random() * 1000 + 500)); 
-      
       const info = await this.getInfo(url);
-      
       const title = info.post.name || info.post.tracks?.[0]?.name;
       const artist = info.post.artist;
-      console.log(`[ Info ] Ditemukan: ${title} - ${artist}`);
-
-      console.log('2. Meminta server memproses lagu...');
-      await new Promise(r => setTimeout(r, Math.random() * 1000 + 1000));
-
+      
       const job = await this.requestDownloadJob(url, format);
       const jobId = job.jobId;
-      console.log(`[ Job ] Job ID diterima: ${jobId}`);
 
-      console.log('3. Menunggu proses konversi (polling)...');
       let isReady = false;
       let downloadLink = null;
 
@@ -103,16 +76,9 @@ class SpotyLoaderDl {
           downloadLink = statusRes.downloadLink;
         } else if (statusRes.status === 'error') {
           throw new Error('Server gagal memproses lagu ini.');
-        } else {
-          process.stdout.write('.'); // Indikator loading
         }
       }
-
-      console.log('\n[ Selesai ] Konversi berhasil!');
-      console.log(`[ Link Unduhan ] : ${downloadLink}`);
-      
       return downloadLink;
-
     } catch (error) {
       console.error(`\n[ Error ] ${error.message}`);
       return null;
@@ -120,11 +86,42 @@ class SpotyLoaderDl {
   }
 }
 
-// --- Cara Penggunaan ---
-(async () => {
-  const scraper = new SpotyLoaderDl();
-  const spotifyUrl = 'https://open.spotify.com/track/3y8RcMPYG22fRnrOi4oFJ1'; 
-  
-  await scraper.download(spotifyUrl, 'm4a', 4000);
-})();
+// ==========================================
+// SERVER EXPRESS UNTUK RENDER.COM
+// ==========================================
+const app = express();
+const scraper = new SpotyLoaderDl();
 
+// Izinkan akses dari Vercel / domain lain
+app.use(cors());
+app.use(express.json());
+
+// Endpoint Download
+app.post('/api/download', async (req, res) => {
+    try {
+        const { url, format } = req.body;
+        if (!url) return res.status(400).json({ error: "URL is required" });
+        
+        console.log(`[Request] Mendownload: ${url} (${format})`);
+        const downloadLink = await scraper.download(url, format || 'm4a');
+        
+        if (downloadLink) {
+            res.json({ success: true, downloadLink });
+        } else {
+            res.status(500).json({ success: false, error: "Gagal mendapatkan link dari SpotyLoader" });
+        }
+    } catch (error) {
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Endpoint untuk mengecek apakah server hidup
+app.get('/', (req, res) => {
+    res.send('Engine Xaerisoft berjalan dengan baik!');
+});
+
+// PORT dinamis dari Render atau default 3000
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`[ Xaerisoft Engine ] Running on port ${PORT}`);
+});

@@ -61,13 +61,13 @@ document.addEventListener('DOMContentLoaded', () => {
         resultArea.innerHTML = `<p style="color: var(--accent-primary);">Menginisialisasi Engine Xaerisoft...</p>`;
 
         try {
-            // Memanggil API Node.js/Express kamu (Pastikan server backend jalan di port 3000)
-            const response = await fetch('/api/download', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ url: url, format: currentFormat })
-            });
-
+            // GANTI DENGAN KODE INI:
+// Ganti 'https://xaerisoft-engine.onrender.com' dengan URL asli dari Render kamu
+const response = await fetch('https://xaerisoft-engine.onrender.com/api/download', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ url: url, format: currentFormat })
+});
             const data = await response.json();
 
             if (data.success && data.downloadLink) {
